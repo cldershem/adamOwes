@@ -1,9 +1,58 @@
 <!-- extends base.html -->
 {% extends "base.html" %}
+{#
 {% from "macros.html" import render_form with context %}
+{% from "macros.html" import render_field with context %}
+{% from "macros.html" import render_table_section with context %}
+{% from "macros.html" import render_table_header with context %}
+#}
+{% from "macros.html" import render_debt_table with context %}
 {% block title %}Index{% endblock %}
 {% block content %}
-  <h1>Hello, World!</h1>
-{% endblock %}
-{% block footer %}
+  <div id='content'>
+    {{ render_debt_table(data) }}
+    {#
+    <div id="debtCalculator" class="table-responsive">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <td>Adam's Current Debts</td>
+          </tr>
+        </thead>
+        {{ render_table_header(data) }}
+        {{ render_table_section('moneyLoaned', 'Money Loaned', data['moneyLoaned']) }}
+        {{ render_table_section('itemLoaned', 'Item Loaned', data['itemLoaned']) }}
+        {{ render_table_section('itemStored', 'Item Stored', data['itemStored']) }}
+        {{ render_table_section('promisesMade', 'Promises Made', data['promisesMade']) }}
+
+        <tbody id="addNewDebt-OneLine">
+          <tr>
+            <th>Add New Debt</th>
+          </tr>
+          <form action="" method="POST" role="form">
+            {% for field in form %}
+              <tr>
+                <td>
+                  {{ render_field(field) }}
+                </td>
+              </tr>
+            {% endfor %}
+          </form>
+        </tbody>
+
+        <tbody id="addNewDebt">
+          <tr>
+            <td>
+              <form action="" method="POST" role="form">
+                {{ render_form(form) }}
+              </form>
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div><!-- end #debtCalculator -->
+    #}
+  </div><!-- end #content-->
+{% endblock %}{% block footer %}
 {% endblock %}

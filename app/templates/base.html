@@ -3,18 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>$SOME_APPLICATION - {% block title %}{% endblock %}</title>
+  <title>Adam Owes - {% block title %}{% endblock %}</title>
   {% block head %}{% endblock %}
-  <link rel="stylesheet" type="text/css/" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" />
-
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
   <link rel="shortcut icon" type="text/css/" href="{{ url_for('static', filename='img/favicon.png') }}" />
   <link rel="stylesheet" type="text/css/" href="{{ url_for('static', filename='css/style.css') }}" />
   <link rel="stylesheet/less" type="text/css/" href="{{ url_for('static', filename='css/style.less') }}" />
-  <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.0.0/less.min.js" type=text/javascript></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/2.5.1/less.min.js"></script>
 </head>
 <body>
   <div id="container" class="container">
     <header id="header">
+      <h1><a href="{{ url_for('main.index')}}">Adam Owes</a></h1>
+      <h2>...and he owes it all over town.</h2>
     </header>
     <div id="mainContent">
       <div id="flashMessage">
@@ -43,6 +44,6 @@
     </footer>
   </div><!-- end container -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"</script>
-  <script src="htt://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"</script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 </body>
 </html>

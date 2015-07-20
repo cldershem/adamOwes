@@ -1,5 +1,4 @@
 {% macro render_form(form) -%}
-{# {% macro form_render(form) -%} #}
   {{ form.hidden_tag() }}
   {% for field in form if field.widget.input_type != 'hidden' %}
     <div class="form-group {% if field.errors %}has-error{% endif %}">
@@ -26,11 +25,11 @@
         {% endfor %}
 
       {% elif field.type == 'MultiCheckboxField' %}
-            {{ field.label }}
-            {% if field.flags.required %}*{% endif %}
-            {% for item in field %}</br>
-              {{ item }} {{item.label.text}}
-            {% endfor %}
+        {{ field.label }}
+        {% if field.flags.required %}*{% endif %}
+        {% for item in field %}</br>
+          {{ item }} {{item.label.text}}
+        {% endfor %}
 
       {% elif field.type == 'FileField' %}
         {{ field.label }}
@@ -40,10 +39,10 @@
         {{ field(class='btn btn-primary') }}
 
       {% else %}
-        {{ field.label(class='control-label') }}
-        {% if field.flags.required %}*{% endif %}
+        {{- field.label(class='control-label') -}}
+        {%- if field.flags.required -%}*{%- endif -%}
 
-        {{ field(class='form-control') }}
+        {{- field(class='form-control') -}}
       {% endif %}
 
       <ul class="list-unstyled help-block">
@@ -52,6 +51,214 @@
         {% endfor %}
         <li>{{ field.description }}</li>
       </ul>
-    </div>
+    </div><!-- end .form-group -->
   {% endfor %}
+{%- endmacro %}
+
+{% macro render_field(field) -%}
+  {#
+  {% for field in form if field.widget.input_type != 'hidden' %}
+    #}
+  {% if field.widget.input_type != 'hidden' %}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+
+      {% if field.type == 'BooleanField' %}
+        <div class="checkbox">
+          <label>
+            {{ field }}
+            {{ field.label.text }}
+            {% if field.flags.required %}*{% endif %}
+          </label>
+        </div>
+
+      {% elif field.type == 'RadioField' %}
+        {{ field.label(class='control-label') }}
+        {% if field.flags.required %}*{% endif %}
+        {% for subfield in field %}
+          <div class="radio">
+            <label>
+              {{ subfield }}
+              {{ subfield.label.text }}
+            </label>
+          </div>
+        {% endfor %}
+
+      {% elif field.type == 'MultiCheckboxField' %}
+        {{ field.label }}
+        {% if field.flags.required %}*{% endif %}
+        {% for item in field %}</br>
+          {{ item }} {{item.label.text}}
+        {% endfor %}
+
+      {% elif field.type == 'FileField' %}
+        {{ field.label }}
+        {{ field }}
+
+      {% elif field.type == 'SubmitField' %}
+        {{ field(class='btn btn-primary') }}
+
+      {% else %}
+        {{- field.label(class='control-label') -}}
+        {%- if field.flags.required -%}*{%- endif -%}
+
+        {{- field(class='form-control') -}}
+      {% endif %}
+
+      <ul class="list-unstyled help-block">
+        {% for error in field.errors %}
+          <li><strong>{{ error }}</strong></li>
+        {% endfor %}
+        <li>{{ field.description }}</li>
+      </ul>
+    </div><!-- end .form-group -->
+  {% endif %}
+{%- endmacro %}
+
+{% macro render_table_header(data) -%}
+  <tbody id="totals">
+    <tr>
+      <th>Totals</th>
+    </tr>
+    <tr>
+      <td>Adam Owes</td>
+      <td>Per Person Owes</td>
+    </tr>
+    <tr>
+      <td>To</td>
+      <td>Amount</td>
+      <td>How Long</td>
+    </tr>
+
+    {% for item in data['people'] %}
+      <tr>
+        <td>
+          {{ item[0] }}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+{%- endmacro %}
+
+{% macro render_table_section(section_id, section_header, section_data) -%}
+  <tbody id={{ section_id }}>
+    <table class="table table-hover table-striped">
+      <tr>
+        <th>
+          {{ section_header }}
+        </th>
+      </tr>
+      <tr>
+        <td>Type</td>
+        <td>Description</td>
+        <td>Photo</td>
+        <td>Amount</td>
+        <td>Interest</td>
+        <td>Fees</td>
+        <td>Date</td>
+        <td>To Whom</td>
+      </tr>
+      {% for item in section_data %}
+        {%- if item.debt_id == data['newest_id'] -%}
+          {%- set status="justAdded" -%}
+        {%- else -%}
+          {%- set status="notJustAdded" -%}
+        {%- endif -%}
+        <tr class={{ status }}>
+          <td>{{ item.debt_type }}</td>
+          <td>{{ item.description }}</td>
+          <td>
+            {% if item.photo %}
+              <a href="{{ url_for('static', filename='img/uploads/' + item.photo) }}">
+                <img src="{{ url_for('static', filename='img/uploads/' + item.photo) }}"  alt="" class="debtThumbnail"/>
+              </a>
+            {% endif %}
+          </td>
+          <td>{{ item.amount }}</td>
+          <td>{{ item.interest }}</td>
+          <td>{{ item.fees }}</td>
+          <td>{{ item.debt_date }}</td>
+          <td>{{ item.to_whom }}</td>
+        </tr>
+      {% endfor %}
+      <tr>
+        <th>Total</th>
+      </tr>
+    </table>
+  </tbody>
+{%- endmacro %}
+
+{% macro render_debt_table(debt_data) -%}
+  <div id="debtCalculator" class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <td>Adam's Current Debts</td>
+        </tr>
+      </thead>
+  <tbody id="totals">
+    <tr>
+      <th>Totals</th>
+    </tr>
+    <tr>
+      <td>Adam Owes</td>
+      <td>Per Person Owes</td>
+    </tr>
+    <tr>
+      <td>{{ data['totals']['everyone'] }}</td>
+      <td>{{ data['totals']['per_person'] }}</td>
+    </tr>
+    <tr>
+      <td>To</td>
+      <td>Amount</td>
+      <td>Oldest Debt</td>
+    </tr>
+
+    {% for person in data['totals']['people'] %}
+      <tr>
+        <td>
+          {{ person[0] }}
+        </td>
+        <td>
+          {{ person[1] }}
+        </td>
+        <td>
+          {{ person[2] }}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+      {{ render_table_section('moneyLoaned', 'Money Loaned', data['moneyLoaned']) }}
+      {{ render_table_section('itemLoaned', 'Item Loaned', data['itemLoaned']) }}
+      {{ render_table_section('itemStored', 'Item Stored', data['itemStored']) }}
+      {{ render_table_section('promisesMade', 'Promises Made', data['promisesMade']) }}
+
+      {#
+      <tbody id="addNewDebt-OneLine">
+        <tr>
+          <th>Add New Debt</th>
+        </tr>
+        <form action="" method="POST" role="form">
+          {% for field in form %}
+            <tr>
+              <td>
+                {{ render_field(field) }}
+              </td>
+            </tr>
+          {% endfor %}
+        </form>
+      </tbody>
+      #}
+
+      <tbody id="addNewDebt">
+        <tr>
+          <td>
+            <form action="" method="POST" role="form" enctype="multipart/form-data">
+              {{ render_form(form) }}
+            </form>
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div><!-- end #debtCalculator -->
 {%- endmacro %}
