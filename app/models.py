@@ -46,6 +46,57 @@ class Debt(db.Model):
         return '<Debt debt_id={}, title={}>'.format(
             self.debt_id, self.title)
 
+    def get_interest(self):
+        return self.interest
+
+    def get_fees(self):
+        return self.fees
+
+    @staticmethod
+    def get_oldest_debt(person):
+        debts = Debt.query.filter_by(to_whom=person).order_by(Debt.debt_date)
+        date = debts[0].debt_date
+        return datetime.datetime.utcnow() - date
+
+    @staticmethod
+    def get_totals():
+        data = {
+            "all": Debt.query.all(),
+            "moneyLoaned": Debt.query.filter_by(debt_type="money"),
+            "itemLoaned": Debt.query.filter_by(debt_type="item"),
+            "itemStored": Debt.query.filter_by(debt_type="storage"),
+            "promisesMade": Debt.query.filter_by(debt_type="promise"),
+            "totals": {},
+            "people": db.session.query(Debt.to_whom.distinct())
+        }
+        data['totals']['people'] = Debt.get_person_totals(data['people'])
+        data['totals']['everyone'] = sum(
+            [x[1] for x in data['totals']['people']])
+        num_of_people = len(data['totals']['people'])
+        if num_of_people > 0:
+            data['totals']['per_person'] = \
+                (data['totals']['everyone'] / num_of_people)
+
+        return data
+
+    @staticmethod
+    def get_person_totals(list_of_people):
+        list_of_people = [r[0] for r in list_of_people]
+        list_of_totals = []
+
+        for person in list_of_people:
+            total = 0
+            oldest_debt = Debt.get_oldest_debt(person)
+            debts = Debt.query.filter_by(to_whom=person).all()
+            # debts = [x.amount for x in debts]
+            for debt in debts:
+                total += debt.amount
+                total += debt.get_interest()
+                total += debt.get_fees()
+            list_of_totals.append((person, total, oldest_debt))
+
+        return list_of_totals
+
 
 class Photo(db.Model):
     photo_id = db.Column(db.Integer, primary_key=True)
