@@ -56,11 +56,9 @@ def api():
     return result.to_json(), 501
 
 
-@mod.route('/debts/<string:data_type>')
-def get_by_type(data_type):
-    list_of_debts = [debt.debt_id for debt in
-                     Debt.query.filter_by(debt_type=data_type).all()]
-    data = {'debt_ids': list_of_debts}
+@mod.route('/debts/type/<string:debt_type>')
+def get_by_type(debt_type):
+    data = {'debt_ids': Debt.get_by_type(debt_type)}
     result = Response(
         success=True,
         data=data,
@@ -69,10 +67,19 @@ def get_by_type(data_type):
     return result.to_json(), 200
 
 
+@mod.route('/debts/id/<int:debt_id>')
+def get_by_id(debt_id):
+    data = {'debt': Debt.get_by_id(debt_id)}
+    result = Response(
+        success=True,
+        data=data,
+        )
+    return result.to_json(), 200
+
+
 @mod.route('/debts')
 def get_debts():
-    list_of_debts = [debt.debt_id for debt in Debt.query.all()]
-    data = {'debt_ids': list_of_debts}
+    data = {'debt_ids': Debt.get_list()}
     result = Response(
         success=True,
         data=data,

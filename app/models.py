@@ -59,14 +59,14 @@ class Debt(db.Model):
         principal = self.amount
         if self.fees:
             principal += self.get_fees()
-        # rate = Decimal(self.interest / 100)
-        # time = Decimal(self.get_debt_age())
-        # compounds_per_year = Decimal(12)
+        # rate = (self.interest / 100)
+        # time = (self.get_debt_age())
+        # compounds_per_year = (12)
 
-        # rate_compounds = Decimal(rate / compounds_per_year)
-        # compounds_time = Decimal(compounds_per_year * time)
+        # rate_compounds = (rate / compounds_per_year)
+        # compounds_time = (compounds_per_year * time)
 
-        # return round(Decimal(
+        # return round((
         #     (principal * (1 + rate_compounds)) ** compounds_time), 2)
         return principal + self.interest
 
@@ -116,6 +116,46 @@ class Debt(db.Model):
             list_of_totals.append((person, total, oldest_debt))
 
         return list_of_totals
+
+    @staticmethod
+    def get_list(id_only=True):
+        if id_only:
+            return [debt.debt_id for debt in Debt.query.all()]
+        else:
+            return [Debt.serialize(debt) for debt in Debt.query.all()]
+
+    @staticmethod
+    def get_by_type(debt_type, id_only=True):
+        if id_only:
+            return [debt.debt_id for debt in
+                    Debt.query.filter_by(debt_type=debt_type).all()]
+        else:
+            return [Debt.serialize(debt) for debt in
+                    Debt.query.filter_by(debt_type=debt_type).all()]
+
+    def get_by_id(debt_id):
+        debt = Debt.query.filter_by(debt_id=debt_id).first_or_404()
+        return Debt.serialize(debt)
+
+    @staticmethod
+    def serialize(debt):
+        debt_params = {
+            'debt_id': debt.debt_id,
+            'debt_type': debt.debt_type,
+            'title': debt.title,
+            'description': debt.description,
+            'photo': debt.photo,
+            'amount': debt.amount,
+            'interest': debt.interest,
+            'fees': debt.fees,
+            'photo': debt.photo,
+            'to_whom': debt.to_whom,
+            'debt_date': str(debt.debt_date),
+            'date_created': str(debt.date_created),
+            'date_modified': str(debt.date_modified),
+            }
+
+        return debt_params
 
 
 class Photo(db.Model):

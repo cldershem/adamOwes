@@ -176,7 +176,7 @@
           <td>{{ item.amount }}</td>
           <td>{{ item.interest }}</td>
           <td>{{ item.fees }}</td>
-          <td>{{ item.debt_date }}</td>
+          <td>{{ item.debt_date.strftime('%Y-%m-%d') }}</td>
           <td>{{ item.to_whom }}</td>
         </tr>
       {% endfor %}
@@ -192,7 +192,7 @@
     <table class="table table-hover">
       <thead>
         <tr>
-          <td>Adam's Current Debts</td>
+          <th>Adam's Current Debts</th>
         </tr>
       </thead>
   <tbody id="totals">
