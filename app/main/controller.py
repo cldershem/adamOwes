@@ -22,7 +22,6 @@ from werkzeug import secure_filename
 @main.route('/', methods=['GET', 'POST'])
 @main.route('/index', methods=['GET', 'POST'])
 def index():
-
     form = AddNewDebtForm()
 
     data = {

@@ -6,10 +6,9 @@ app.py
 
 This is an application.
 
-:copyright: (c) 2015
- by Cameron Dershem.
+:copyright: (c) 2015 by Cameron Dershem.
 :license: see TOPMATTER
-:source: github.com/cldershem/$SOME_REP
+:source: github.com/cldershem/adamOwes
 """
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy

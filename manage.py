@@ -19,15 +19,17 @@ manager = Manager(app)
 
 
 @manager.command
-def run():
+@manager.option('--environment', 'e', help='development, production, test')
+def run(environment='development'):
     """
     """
-    app = create_app('development')
+    app = create_app(environment)
     app.run()
 
 
 @manager.command
-def run_on_network():
+@manager.option('--environment', 'e', help='development, production, test')
+def run_on_network(environment='development'):
     """
     """
     app = create_app('development')
