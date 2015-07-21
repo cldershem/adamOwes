@@ -64,7 +64,6 @@ def get_by_type(data_type):
     result = Response(
         success=True,
         data=data,
-        length=len(data)
+        length=len(data['debt_ids'])
         )
-    # return str(data)
     return result.to_json(), 200
