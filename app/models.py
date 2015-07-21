@@ -12,6 +12,8 @@ DB models for application
 """
 from app import db
 import datetime
+from dateutil.relativedelta import relativedelta
+# from decimal import Decimal
 
 DATE_TIME_NOW = datetime.datetime.utcnow()
 
@@ -46,30 +48,51 @@ class Debt(db.Model):
         return '<Debt debt_id={}, title={}>'.format(
             self.debt_id, self.title)
 
-    def get_interest(self):
-        return self.interest
+    def get_amount_with_interest(self):
+        # P = 100
+        # R = 5
+        # n = 12
+        # t = 1
+        # r = (float(R) / 100)
+        # print(P * (1 + (r / n)) ** (n * t))
+
+        principal = self.amount
+        if self.fees:
+            principal += self.get_fees()
+        # rate = Decimal(self.interest / 100)
+        # time = Decimal(self.get_debt_age())
+        # compounds_per_year = Decimal(12)
+
+        # rate_compounds = Decimal(rate / compounds_per_year)
+        # compounds_time = Decimal(compounds_per_year * time)
+
+        # return round(Decimal(
+        #     (principal * (1 + rate_compounds)) ** compounds_time), 2)
+        return principal + self.interest
 
     def get_fees(self):
         return self.fees
 
+    def get_debt_age(self):
+        return relativedelta(DATE_TIME_NOW, self.debt_date).years
+
     @staticmethod
     def get_oldest_debt(person):
         debts = Debt.query.filter_by(to_whom=person).order_by(Debt.debt_date)
-        date = debts[0].debt_date
-        return DATE_TIME_NOW - date
+        return debts[0].get_debt_age()
 
     @staticmethod
     def get_totals():
+        people = db.session.query(Debt.to_whom.distinct())
         data = {
-            "all": Debt.query.all(),
             "moneyLoaned": Debt.query.filter_by(debt_type="money"),
             "itemLoaned": Debt.query.filter_by(debt_type="item"),
             "itemStored": Debt.query.filter_by(debt_type="storage"),
             "promisesMade": Debt.query.filter_by(debt_type="promise"),
-            "totals": {},
-            "people": db.session.query(Debt.to_whom.distinct())
+            "totals": {
+                "people": Debt.get_person_totals(people),
+            }
         }
-        data['totals']['people'] = Debt.get_person_totals(data['people'])
         data['totals']['everyone'] = sum(
             [x[1] for x in data['totals']['people']])
         num_of_people = len(data['totals']['people'])
@@ -85,14 +108,11 @@ class Debt(db.Model):
         list_of_totals = []
 
         for person in list_of_people:
-            total = 0
             oldest_debt = Debt.get_oldest_debt(person)
             debts = Debt.query.filter_by(to_whom=person).all()
             # debts = [x.amount for x in debts]
             for debt in debts:
-                total += debt.amount
-                total += debt.get_interest()
-                total += debt.get_fees()
+                total = debt.get_amount_with_interest()
             list_of_totals.append((person, total, oldest_debt))
 
         return list_of_totals

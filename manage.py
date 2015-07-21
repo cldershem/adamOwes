@@ -53,11 +53,43 @@ def populate_db():
     Populates db from yaml source.
     """
     # import yaml
-    # from app.models import *
+    from app.models import (Debt)
     from app import db
+    import random
+    # from __future__ import division
+    from datetime import datetime
+
     # root = './tmp/data/'
 
     db.create_all()
+
+    list_o_types = ['money', 'item', 'storage', 'promise']
+    list_o_people = ['Bob', 'Susan', 'Tom', 'Your Mom', 'Sally']
+    list_o_descriptions = [
+        'Something', 'Nothing', 'Noneya', 'Handy', 'Ice Cream']
+
+    def get_random_date():
+        year = random.randint(1980, 2015)
+        month = random.randint(1, 12)
+        day = random.randint(1, 28)
+        return ("{}-{}-{}".format(year, month, day))
+
+    def populate_debt():
+        for i in range(10):
+            debt = Debt(
+                debt_type=random.choice(list_o_types),
+                description=random.choice(list_o_descriptions),
+                to_whom=random.choice(list_o_people),
+                amount=float(random.randrange(10000, 99999) / 100),
+                fees=float(random.randrange(10000, 99999) / 100),
+                interest=float(random.randrange(1000, 9999) / 100),
+                debt_date=datetime.strptime(get_random_date(), '%Y-%m-%d'),
+                )
+            db.session.add(debt)
+            db.session.commit()
+            print("Created debt_id={}".format(debt.debt_type))
+
+    populate_debt()
 
 
 if __name__ == '__main__':

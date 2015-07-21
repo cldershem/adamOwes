@@ -67,3 +67,15 @@ def get_by_type(data_type):
         length=len(data['debt_ids'])
         )
     return result.to_json(), 200
+
+
+@mod.route('/debts')
+def get_debts():
+    list_of_debts = [debt.debt_id for debt in Debt.query.all()]
+    data = {'debt_ids': list_of_debts}
+    result = Response(
+        success=True,
+        data=data,
+        length=len(data['debt_ids'])
+        )
+    return result.to_json(), 200
