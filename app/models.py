@@ -56,7 +56,7 @@ class Debt(db.Model):
     def get_oldest_debt(person):
         debts = Debt.query.filter_by(to_whom=person).order_by(Debt.debt_date)
         date = debts[0].debt_date
-        return datetime.datetime.utcnow() - date
+        return DATE_TIME_NOW - date
 
     @staticmethod
     def get_totals():
