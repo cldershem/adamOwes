@@ -66,7 +66,9 @@ def index():
     data['totals']['people'] = get_person_totals(data['people'])
     data['totals']['everyone'] = sum([x[1] for x in data['totals']['people']])
     num_of_people = len(data['totals']['people'])
-    data['totals']['per_person'] = (data['totals']['everyone'] / num_of_people)
+    if num_of_people > 0:
+        data['totals']['per_person'] = \
+            (data['totals']['everyone'] / num_of_people)
     data['upload_dir'] = current_app.config['UPLOAD_DIR']
 
     if request.method == 'GET':
