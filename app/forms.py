@@ -11,9 +11,9 @@ Forms needed throughout app.
 :source: github.com/cldershem/adamOwes
 """
 from flask_wtf import Form
-from wtforms import (StringField, SelectField, SubmitField,  # BooleanField,
+from wtforms import (StringField, SelectField, SubmitField,
                      FileField, DecimalField, DateField)
-from wtforms.validators import (DataRequired)
+from wtforms.validators import (DataRequired, )
 
 
 class AddNewDebtForm(Form):
@@ -36,6 +36,17 @@ class AddNewDebtForm(Form):
                           validators=[DataRequired()], description="0.00")
     interest = StringField('Interest', description="0.00")
     fees = DecimalField('Fees', places=2, rounding=None, description="0.00")
+    compounds_per_year = SelectField('Compounds Per Year',
+                                     choices=[
+                                         ('daily', 'Daily'),
+                                         ('weekly', 'Weekly'),
+                                         ('monthly', 'Monthly'),
+                                         ('quarterly', 'Quarterly'),
+                                         ('biannually', 'BiAnnually'),
+                                         ('annually', 'Annually'),
+                                         ],
+                                     default=1,
+                                     validators=[DataRequired()])
     date = DateField('Date', format='%Y-%m-%d',
                      description="YYYY-MM-DD")
     person_owed = StringField('To Whom',

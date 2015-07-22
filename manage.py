@@ -67,6 +67,7 @@ def populate_db():
     list_o_people = ['Bob', 'Susan', 'Tom', 'Your Mom', 'Sally']
     list_o_descriptions = [
         'Something', 'Nothing', 'Noneya', 'Handy', 'Ice Cream']
+    list_o_compounds = ['daily', 'weekly', 'monthly', 'biannually', 'annually']
 
     def get_random_date():
         year = random.randint(1980, 2015)
@@ -84,6 +85,7 @@ def populate_db():
                 fees=float(random.randrange(10000, 99999) / 100),
                 interest=float(random.randrange(1000, 9999) / 100),
                 debt_date=datetime.strptime(get_random_date(), '%Y-%m-%d'),
+                compound_frequency=random.choice(list_o_compounds),
                 )
             db.session.add(debt)
             db.session.commit()

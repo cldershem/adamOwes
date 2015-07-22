@@ -32,9 +32,20 @@ class Debt(db.Model):
     debt_date = db.Column(db.DateTime())
     date_created = db.Column(db.DateTime, default=DATE_TIME_NOW)
     date_modified = db.Column(db.DateTime, onupdate=DATE_TIME_NOW)
+    compound_frequency = db.Column(db.String(20))
+
+    compound_frequency_to_int = {
+        'daily': 365,
+        'weekly': 52,
+        'monthly': 12,
+        'quarterly': 4,
+        'biannually': 2,
+        'annually': 1,
+        }
 
     def __init__(self, debt_type, description, amount, to_whom, debt_date,
-                 photo=None, interest=0, fees=0, title=None):
+                 photo=None, interest=0, fees=0, title=None,
+                 compound_frequency='annually'):
         self.debt_type = debt_type
         self.description = description
         self.amount = amount
@@ -43,11 +54,24 @@ class Debt(db.Model):
         self.interest = interest
         self.fees = fees
         self.title = title
-        # self._amount_with_interest = 0
+        self.compound_frequency = compound_frequency
 
     def __repr__(self):
         return '<Debt debt_id={}, title={}>'.format(
             self.debt_id, self.title)
+
+    # @property
+    # def compounds_per_year(self):
+    #     return self._compounds_per_year
+
+    # @compounds_per_year.setter
+    # def compounds_per_year(self, compounds):
+    #     compound_min = 1
+    #     compound_max = 365
+
+    #     if compounds not in range(compound_min, compound_max+1):
+    #         raise ValueError("Value must be between 1 and 365")
+    #     self._compounds_per_year = compounds
 
     @property
     def amount_with_interest(self):
@@ -67,7 +91,7 @@ class Debt(db.Model):
 
         rate = self.interest / 100
         age = self.get_debt_age() + 1
-        compound = 12
+        compound = Debt.compound_frequency_to_int[self.compound_frequency]
 
         total = 0
         for year in range(0, age):
@@ -168,6 +192,7 @@ class Debt(db.Model):
             'debt_date': debt.debt_date.strftime('%Y-%m-%d'),
             'date_created': debt.date_created.strftime('%Y-%m-%d'),
             'amount_with_interest': debt.amount_with_interest,
+            'compound_frequency': debt.compound_frequency,
             }
 
         if debt.date_modified:

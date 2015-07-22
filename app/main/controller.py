@@ -37,6 +37,7 @@ def index():
                 amount=form.amount.data,
                 to_whom=form.person_owed.data,
                 debt_date=form.date.data,
+                compound_frequency=form.compound_frequency.data,
                 )
             if form.interest.data:
                 new_debt.interest = form.interest.data
