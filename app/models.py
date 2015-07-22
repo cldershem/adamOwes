@@ -32,7 +32,6 @@ class Debt(db.Model):
     debt_date = db.Column(db.DateTime())
     date_created = db.Column(db.DateTime, default=DATE_TIME_NOW)
     date_modified = db.Column(db.DateTime, onupdate=DATE_TIME_NOW)
-    # _amount_with_interest = db.Column(db.Float())
 
     def __init__(self, debt_type, description, amount, to_whom, debt_date,
                  photo=None, interest=0, fees=0, title=None):
@@ -44,7 +43,7 @@ class Debt(db.Model):
         self.interest = interest
         self.fees = fees
         self.title = title
-        self._amount_with_interest = 0
+        # self._amount_with_interest = 0
 
     def __repr__(self):
         return '<Debt debt_id={}, title={}>'.format(
@@ -53,13 +52,13 @@ class Debt(db.Model):
     @property
     def amount_with_interest(self):
         amount = self.get_amount_with_interest()
-        self._amount_with_interest = amount
+        # self._amount_with_interest = amount
         return amount
 
-    @amount_with_interest.setter
-    def amount_with_interest(self):
-        amount = self.get_amount_with_interest()
-        self._amount_with_interest = amount
+    # @amount_with_interest.setter
+    # def amount_with_interest(self):
+    #     amount = self.get_amount_with_interest()
+    #     self._amount_with_interest = amount
 
     def get_amount_with_interest(self):
         principal = self.amount

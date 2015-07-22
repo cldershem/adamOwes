@@ -35,6 +35,11 @@ run on network
 ./manage.py run_on_network
 ```
 
+populate db
+```sh
+./manage.py populate_db
+```
+
 ## LICENSE
 See `TOPMATTER.md`
 ## COPYRIGHT
