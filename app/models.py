@@ -32,6 +32,7 @@ class Debt(db.Model):
     debt_date = db.Column(db.DateTime())
     date_created = db.Column(db.DateTime, default=DATE_TIME_NOW)
     date_modified = db.Column(db.DateTime, onupdate=DATE_TIME_NOW)
+    # _amount_with_interest = db.Column(db.Float())
 
     def __init__(self, debt_type, description, amount, to_whom, debt_date,
                  photo=None, interest=0, fees=0, title=None):
@@ -43,32 +44,50 @@ class Debt(db.Model):
         self.interest = interest
         self.fees = fees
         self.title = title
+        # self._amount_with_interest = 0
 
     def __repr__(self):
         return '<Debt debt_id={}, title={}>'.format(
             self.debt_id, self.title)
 
-    def get_amount_with_interest(self):
-        # P = 100
-        # R = 5
-        # n = 12
-        # t = 1
-        # r = (float(R) / 100)
-        # print(P * (1 + (r / n)) ** (n * t))
+    # @property
+    # def amount_with_interest(self):
+    #     if not self._amount_with_interest:
+    #         self._amount_with_interest = 0
+    #     return self._amount_with_interest
 
+    # @amount_with_interest.setter
+    # def amount_with_interest(self):
+    #     principal = self.amount
+    #     if self.fees:
+    #         principal += self.get_fees()
+
+    #     rate = self.interest / 100
+    #     age = self.get_debt_age() + 1
+    #     compound = 12
+
+    #     total = 0
+    #     for year in range(0, age):
+    #         total = round(principal * (
+    #             (1.0 + (rate/compound)) ** (year * compound)), 2)
+    #     self._amount_with_interest = total
+    #     # return total
+    #     return self._amount_with_interest
+
+    def get_amount_with_interest(self):
         principal = self.amount
         if self.fees:
             principal += self.get_fees()
-        # rate = (self.interest / 100)
-        # time = (self.get_debt_age())
-        # compounds_per_year = (12)
 
-        # rate_compounds = (rate / compounds_per_year)
-        # compounds_time = (compounds_per_year * time)
+        rate = self.interest / 100
+        age = self.get_debt_age() + 1
+        compound = 12
 
-        # return round((
-        #     (principal * (1 + rate_compounds)) ** compounds_time), 2)
-        return principal + self.interest
+        total = 0
+        for year in range(0, age):
+            total = round(principal * (
+                (1.0 + (rate/compound)) ** (year * compound)), 2)
+        return total
 
     def get_fees(self):
         return self.fees
@@ -86,10 +105,17 @@ class Debt(db.Model):
         people = db.session.query(Debt.to_whom.distinct())
         data = {
             # "moneyLoaned": Debt.query.filter_by(debt_type="money"),
+            # "itemLoaned": Debt.query.filter_by(debt_type="item"),
+            # "itemStored": Debt.query.filter_by(debt_type="storage"),
+            # "promisesMade": Debt.query.filter_by(debt_type="promise"),
+            # "totals": {
+            #     "people": Debt.get_person_totals(people),
+            # }
             "moneyLoaned": Debt.get_by_type(debt_type="money", id_only=False),
-            "itemLoaned": Debt.query.filter_by(debt_type="item"),
-            "itemStored": Debt.query.filter_by(debt_type="storage"),
-            "promisesMade": Debt.query.filter_by(debt_type="promise"),
+            "itemLoaned": Debt.get_by_type(debt_type="item", id_only=False),
+            "itemStored": Debt.get_by_type(debt_type="storage", id_only=False),
+            "promisesMade": Debt.get_by_type(
+                debt_type="promise", id_only=False),
             "totals": {
                 "people": Debt.get_person_totals(people),
             }
@@ -114,6 +140,7 @@ class Debt(db.Model):
             debts = Debt.get_by_person(person, id_only=False)
             for debt in debts:
                 total = debt.get_amount_with_interest()
+                # total = debt.amount_with_interest
             list_of_totals.append((person, total, oldest_debt))
 
         return list_of_totals

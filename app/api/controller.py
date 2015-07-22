@@ -51,18 +51,26 @@ class Response():
 def api():
     result = Response(
         success=False,
-        error="API not yet implemented"
+        error="API docs not yet implemented"
         )
     return result.to_json(), 501
 
 
-@mod.route('/debts/type/<string:debt_type>')
-def get_by_type(debt_type):
-    data = {'debt_ids': Debt.get_by_type(debt_type)}
+@mod.route('/debts/type/<string:debt_type>', defaults={'details': False})
+@mod.route('/debts/type/<string:debt_type>/details',
+           defaults={'details': True})
+def get_by_type(debt_type, details):
+    if details:
+        data = {'debt_ids': Debt.get_by_type(debt_type, id_only=False)}
+        message = "ids url = /debts/type/<debt_type>"
+    else:
+        data = {'debt_ids': Debt.get_by_type(debt_type, id_only=True)}
+        message = "details url = /debts/type/<debt_type>/details"
     result = Response(
         success=True,
         data=data,
-        length=len(data['debt_ids'])
+        length=len(data['debt_ids']),
+        message=message,
         )
     return result.to_json(), 200
 
@@ -77,12 +85,19 @@ def get_by_id(debt_id):
     return result.to_json(), 200
 
 
-@mod.route('/debts')
-def get_debts():
-    data = {'debt_ids': Debt.get_list()}
+@mod.route('/debts', defaults={'details': False})
+@mod.route('/debts/details', defaults={'details': True})
+def get_debts(details):
+    if details:
+        data = {'debt_ids': Debt.get_list(id_only=False)}
+        message = "ids url = /debts"
+    else:
+        data = {'debt_ids': Debt.get_list(id_only=True)}
+        message = "details url = /debts/details"
     result = Response(
         success=True,
         data=data,
-        length=len(data['debt_ids'])
+        length=len(data['debt_ids']),
+        message=message
         )
     return result.to_json(), 200

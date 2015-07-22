@@ -155,6 +155,7 @@
         <td>Interest</td>
         <td>Fees</td>
         <td>Date</td>
+        <td>Total</td>
         <td>To Whom</td>
       </tr>
       {% for item in section_data %}
@@ -177,6 +178,7 @@
           <td>{{ item.interest }}</td>
           <td>{{ item.fees }}</td>
           <td>{{ item.debt_date }}</td>
+          <td>{{ item.amount }}</td>
           <td>{{ item.to_whom }}</td>
         </tr>
       {% endfor %}
