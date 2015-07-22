@@ -44,20 +44,27 @@ class Debt(db.Model):
         self.interest = interest
         self.fees = fees
         self.title = title
-        # self._amount_with_interest = 0
+        self._amount_with_interest = 0
 
     def __repr__(self):
         return '<Debt debt_id={}, title={}>'.format(
             self.debt_id, self.title)
 
-    # @property
-    # def amount_with_interest(self):
-    #     if not self._amount_with_interest:
-    #         self._amount_with_interest = 0
-    #     return self._amount_with_interest
+    @property
+    def amount_with_interest(self):
+        # if not self._amount_with_interest:
+            # self._amount_with_interest = 0
+        try:
+            return self._amount_with_interest
+        except AttributeError:
+            amount = self.get_amount_with_interest()
+            self._amount_with_interest = amount
+            return amount
 
-    # @amount_with_interest.setter
-    # def amount_with_interest(self):
+    @amount_with_interest.setter
+    def amount_with_interest(self):
+        amount = self.get_amount_with_interest()
+        self._amount_with_interest = amount
     #     principal = self.amount
     #     if self.fees:
     #         principal += self.get_fees()
@@ -139,8 +146,8 @@ class Debt(db.Model):
             # debts = Debt.query.filter_by(to_whom=person).all()
             debts = Debt.get_by_person(person, id_only=False)
             for debt in debts:
-                total = debt.get_amount_with_interest()
-                # total = debt.amount_with_interest
+                # total = debt.get_amount_with_interest()
+                total = debt.amount_with_interest
             list_of_totals.append((person, total, oldest_debt))
 
         return list_of_totals
@@ -177,7 +184,6 @@ class Debt(db.Model):
 
     @staticmethod
     def serialize(debt):
-        # <td>{{ item.debt_date.strftime('%Y-%m-%d') }}</td>
         debt_params = {
             'debt_id': debt.debt_id,
             'debt_type': debt.debt_type,
@@ -191,6 +197,7 @@ class Debt(db.Model):
             'to_whom': debt.to_whom,
             'debt_date': debt.debt_date.strftime('%Y-%m-%d'),
             'date_created': debt.date_created.strftime('%Y-%m-%d'),
+            'amount_with_interest': debt.amount_with_interest,
             }
 
         if debt.date_modified:
