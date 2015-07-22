@@ -52,34 +52,14 @@ class Debt(db.Model):
 
     @property
     def amount_with_interest(self):
-        # if not self._amount_with_interest:
-            # self._amount_with_interest = 0
-        try:
-            return self._amount_with_interest
-        except AttributeError:
-            amount = self.get_amount_with_interest()
-            self._amount_with_interest = amount
-            return amount
+        amount = self.get_amount_with_interest()
+        self._amount_with_interest = amount
+        return amount
 
     @amount_with_interest.setter
     def amount_with_interest(self):
         amount = self.get_amount_with_interest()
         self._amount_with_interest = amount
-    #     principal = self.amount
-    #     if self.fees:
-    #         principal += self.get_fees()
-
-    #     rate = self.interest / 100
-    #     age = self.get_debt_age() + 1
-    #     compound = 12
-
-    #     total = 0
-    #     for year in range(0, age):
-    #         total = round(principal * (
-    #             (1.0 + (rate/compound)) ** (year * compound)), 2)
-    #     self._amount_with_interest = total
-    #     # return total
-    #     return self._amount_with_interest
 
     def get_amount_with_interest(self):
         principal = self.amount
