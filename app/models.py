@@ -85,7 +85,8 @@ class Debt(db.Model):
     def get_totals():
         people = db.session.query(Debt.to_whom.distinct())
         data = {
-            "moneyLoaned": Debt.query.filter_by(debt_type="money"),
+            # "moneyLoaned": Debt.query.filter_by(debt_type="money"),
+            "moneyLoaned": Debt.get_by_type(debt_type="money", id_only=False),
             "itemLoaned": Debt.query.filter_by(debt_type="item"),
             "itemStored": Debt.query.filter_by(debt_type="storage"),
             "promisesMade": Debt.query.filter_by(debt_type="promise"),
@@ -109,8 +110,8 @@ class Debt(db.Model):
 
         for person in list_of_people:
             oldest_debt = Debt.get_oldest_debt(person)
-            debts = Debt.query.filter_by(to_whom=person).all()
-            # debts = [x.amount for x in debts]
+            # debts = Debt.query.filter_by(to_whom=person).all()
+            debts = Debt.get_by_person(person, id_only=False)
             for debt in debts:
                 total = debt.get_amount_with_interest()
             list_of_totals.append((person, total, oldest_debt))
@@ -125,6 +126,15 @@ class Debt(db.Model):
             return [Debt.serialize(debt) for debt in Debt.query.all()]
 
     @staticmethod
+    def get_by_person(person, id_only=True):
+        if id_only:
+            return [Debt.serialize(debt) for debt in
+                    Debt.query.filter_by(to_whom=person).all()]
+        else:
+            return [debt for debt in
+                    Debt.query.filter_by(to_whom=person).all()]
+
+    @staticmethod
     def get_by_type(debt_type, id_only=True):
         if id_only:
             return [debt.debt_id for debt in
@@ -133,12 +143,14 @@ class Debt(db.Model):
             return [Debt.serialize(debt) for debt in
                     Debt.query.filter_by(debt_type=debt_type).all()]
 
+    @staticmethod
     def get_by_id(debt_id):
         debt = Debt.query.filter_by(debt_id=debt_id).first_or_404()
         return Debt.serialize(debt)
 
     @staticmethod
     def serialize(debt):
+        # <td>{{ item.debt_date.strftime('%Y-%m-%d') }}</td>
         debt_params = {
             'debt_id': debt.debt_id,
             'debt_type': debt.debt_type,
@@ -150,10 +162,13 @@ class Debt(db.Model):
             'fees': debt.fees,
             'photo': debt.photo,
             'to_whom': debt.to_whom,
-            'debt_date': str(debt.debt_date),
-            'date_created': str(debt.date_created),
-            'date_modified': str(debt.date_modified),
+            'debt_date': debt.debt_date.strftime('%Y-%m-%d'),
+            'date_created': debt.date_created.strftime('%Y-%m-%d'),
             }
+
+        if debt.date_modified:
+            debt_params['date_modified'] = debt.date_modified.strftime(
+                '%Y-%m-%d')
 
         return debt_params
 
