@@ -91,13 +91,6 @@ class Debt(db.Model):
     def get_totals():
         people = db.session.query(Debt.to_whom.distinct())
         data = {
-            # "moneyLoaned": Debt.query.filter_by(debt_type="money"),
-            # "itemLoaned": Debt.query.filter_by(debt_type="item"),
-            # "itemStored": Debt.query.filter_by(debt_type="storage"),
-            # "promisesMade": Debt.query.filter_by(debt_type="promise"),
-            # "totals": {
-            #     "people": Debt.get_person_totals(people),
-            # }
             "moneyLoaned": Debt.get_by_type(debt_type="money", id_only=False),
             "itemLoaned": Debt.get_by_type(debt_type="item", id_only=False),
             "itemStored": Debt.get_by_type(debt_type="storage", id_only=False),
@@ -123,10 +116,8 @@ class Debt(db.Model):
 
         for person in list_of_people:
             oldest_debt = Debt.get_oldest_debt(person)
-            # debts = Debt.query.filter_by(to_whom=person).all()
             debts = Debt.get_by_person(person, id_only=False)
             for debt in debts:
-                # total = debt.get_amount_with_interest()
                 total = debt.amount_with_interest
             list_of_totals.append((person, total, oldest_debt))
 
