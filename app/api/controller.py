@@ -17,10 +17,10 @@ from app.models import Debt
 mod = Blueprint('api', __name__, url_prefix='/api/v1')
 
 
-def list_to_dict(list_to_convert):
-    new_dict = dict(zip([x for x in range(0,
-                        len(list_to_convert))], list_to_convert))
-    return new_dict
+# def list_to_dict(list_to_convert):
+#     new_dict = dict(zip([x for x in range(0,
+#                         len(list_to_convert))], list_to_convert))
+#     return new_dict
 
 
 class Response():
@@ -47,13 +47,31 @@ class Response():
             self.success, self.data, self.error)
 
 
+class APIError(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, data=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        # if data is not None:
+        self.data = data
+        self.response = Response(
+            success=False,
+            data=data,
+            message=message,
+            )
+
+
+@mod.errorhandler(APIError)
+def handle_invalid_usage(error):
+    return error.response.to_json()
+
+
 @mod.route('/')
 def api():
-    result = Response(
-        success=False,
-        error="API docs not yet implemented"
-        )
-    return result.to_json(), 501
+    raise APIError('API docs, not yet implemented.', status_code=501)
 
 
 @mod.route('/debts/type/<string:debt_type>', defaults={'details': False})
