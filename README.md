@@ -41,8 +41,8 @@ populate db
 ```
 
 ## LICENSE
-See `TOPMATTER.md`
+See [`TOPMATTER.md`](https://github.com/cldershem/adamOwes/blob/master/TOPMATTER.md#license)
 ## COPYRIGHT
-See `TOPMATTER.md`
+See [`TOPMATTER.md`](https://github.com/cldershem/adamOwes/blob/master/TOPMATTER.md#copyright)
 ## CONTRIBUTING
-See `TOPMATTER.md`
+See [`TOPMATTER.md`](https://github.com/cldershem/adamOwes/blob/master/TOPMATTER.md#contributing)

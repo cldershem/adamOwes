@@ -1,4 +1,5 @@
 #LICENSE
+#COPYRIGHT
 #CONTRIBUTING
 If you'd like to contribute:
 - Checkout the [issues](https://github.com/cldershem/adamOwes/issues)
