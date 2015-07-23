@@ -12,8 +12,9 @@ Forms needed throughout app.
 """
 from flask_wtf import Form
 from wtforms import (StringField, SelectField, SubmitField,
-                     FileField, DecimalField, DateField)
+                     FileField, DecimalField)  # , DateField)
 from wtforms.validators import (DataRequired, )
+from wtforms.fields.html5 import DateField
 
 
 class AddNewDebtForm(Form):
@@ -48,7 +49,7 @@ class AddNewDebtForm(Form):
                                      default=1,
                                      validators=[DataRequired()])
     debt_date = DateField('Date', format='%Y-%m-%d',
-                          description="YYYY-MM-DD")
+                          description="chrome=MM-DD-YYYY, firefox=YYYY-MM-DD")
     to_whom = StringField('To Whom',
                           validators=[DataRequired()],
                           description="John Smith")

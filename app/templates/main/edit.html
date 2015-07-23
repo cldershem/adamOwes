@@ -1,0 +1,14 @@
+<!-- extends base.html -->
+{% extends "base.html" %}
+{% from "macros.html" import render_form with context %}
+{% block title %}Edit{% endblock %}
+{% block content %}
+  <div id='content'>
+    <form action="" method="POST" role="form" enctype="multipart/form-data">
+      {{ render_form(form) }}
+    </form>
+    <a class="btn btn-large btn-info" href="{{ url_for('.show_debt', debt_id=debt_id)}}">Cancel</a>
+    <a class="btn btn-large btn-warning" href="{{ url_for('.delete_debt', debt_id=debt_id)}}">Delete</a>
+  </div><!-- end #content-->
+{% endblock %}{% block footer %}
+{% endblock %}

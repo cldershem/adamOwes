@@ -11,7 +11,7 @@ Main routes for application.
 :source: github.com/cldershem/adamOwes
 """
 from flask import (render_template, request, flash, current_app, redirect,
-                   url_for)
+                   url_for, g, session)
 from app import db
 from app.models import Debt  # , Photo
 from app.forms import AddNewDebtForm
@@ -26,6 +26,9 @@ def index():
     data = Debt.get_totals()
 
     if request.method == 'GET':
+        if 'newest_id' in session:
+            data['newest_id'] = session['newest_id']
+            # session.pop('newest_id')
         return render_template('index.html', form=form, data=data)
     if request.method == 'POST':
         if not form.validate():
@@ -51,9 +54,11 @@ def index():
                 new_debt.photo = filename
             db.session.add(new_debt)
             db.session.commit()
-            data['newest_id'] = new_debt.debt_id
+            g.newest_id = new_debt.debt_id
+            data = new_debt.debt_id
+            session['newest_id'] = new_debt.debt_id
             flash("Form all good.")
-            return render_template('index.html', form=form, data=data)
+            return redirect(url_for('.index'))
 
 
 @main.route('/debts')
@@ -62,31 +67,33 @@ def list_debts():
     return render_template('list.html', data=data)
 
 
-@main.route('/debts/id/<int:debt_id>', defaults={'edit': False})
-@main.route('/debts/id/<int:debt_id>/edit', defaults={'edit': True},
-            methods=['GET', 'POST'])
-def show_debt(debt_id, edit):
+@main.route('/debts/id/<int:debt_id>')
+def show_debt(debt_id):
+    data = Debt.query.filter_by(debt_id=debt_id).first_or_404()
+    # form = AddNewDebtForm(obj=data)
+    return render_template('detail.html', data=data)
+
+
+@main.route('/debts/id/<int:debt_id>/edit', methods=['GET', 'POST'])
+def edit_debt(debt_id):
     data = Debt.query.filter_by(debt_id=debt_id).first_or_404()
     form = AddNewDebtForm(obj=data)
-    if not edit:
-        return render_template('detail.html', data=data)
-    else:
-        if request.method == 'GET':
+    if request.method == 'GET':
+        return render_template('edit.html', form=form, debt_id=debt_id)
+    if request.method == 'POST':
+        if not form.validate():
+            flash("Form didn't validate")
             return render_template('edit.html', form=form)
-        if request.method == 'POST':
-            if not form.validate():
-                flash("Form didn't validate")
-                return render_template('edit.html', form=form)
-            else:
-                form.photo.data = data.photo
-                form.populate_obj(data)
-                db.session.commit()
-                flash('Form all good.')
-                return redirect(url_for('.show_debt',
-                                        debt_id=debt_id, edit=False))
+        else:
+            form.photo.data = data.photo
+            form.populate_obj(data)
+            db.session.commit()
+            flash('Form all good.')
+            return redirect(url_for('.show_debt', debt_id=debt_id))
 
 
-@main.route('/debts/id/<int:debt_id>', methods=['DELETE'])
+# @main.route('/debts/id/<int:debt_id>', methods=['DELETE'])
+@main.route('/debts/id/<int:debt_id>/delete')
 def delete_debt(debt_id):
     Debt.delete(debt_id)
     flash('Debt with id={} has been deleted'.format(debt_id))

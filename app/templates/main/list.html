@@ -1,0 +1,10 @@
+<!-- extends base.html -->
+{% extends "base.html" %}
+{% from "macros.html" import render_table_section with context %}
+{% block title %}Index{% endblock %}
+{% block content %}
+  <div id='content'>
+    {{ render_table_section('allDebts', 'All Debts', data) }}
+  </div><!-- end #content-->
+{% endblock %}{% block footer %}
+{% endblock %}
