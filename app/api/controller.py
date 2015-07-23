@@ -91,7 +91,7 @@ def get_by_type(debt_type, details):
 
 @mod.route('/debts/id/<int:debt_id>')
 def get_by_id(debt_id):
-    debt = Debt.get_by_id(debt_id).serialize()
+    debt = Debt.get_by_id(debt_id=debt_id).serialize()
     data = {'debt': debt}
     result = Response(
         success=True,

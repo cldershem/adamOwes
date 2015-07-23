@@ -167,7 +167,7 @@ class Debt(db.Model):
 
     @staticmethod
     def update(debt_id, data):
-        debt = Debt.get_by_id(debt_id=debt_id)
+        debt = Debt.get(debt_id=debt_id)[0]
         # should probably validate data here
 
         for key, value in data.iteritems():
@@ -179,7 +179,7 @@ class Debt(db.Model):
 
     @staticmethod
     def delete(debt_id):
-        debt = Debt.get_by_id(debt_id=debt_id)
+        debt = Debt.get(debt_id=debt_id)[0]
         debt.is_active = False
         db.session.commit()
         return True
