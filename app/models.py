@@ -13,7 +13,6 @@ DB models for application
 from app import db
 import datetime
 from dateutil.relativedelta import relativedelta
-# from decimal import Decimal
 
 
 class Debt(db.Model):
@@ -21,7 +20,6 @@ class Debt(db.Model):
     debt_type = db.Column(db.String(20))
     title = db.Column(db.String(20))
     description = db.Column(db.String(120))
-    # photo = db.relationship('Photo')
     photo = db.Column(db.String(120))
     amount = db.Column(db.Float(20))
     interest = db.Column(db.Float(20))
@@ -60,31 +58,8 @@ class Debt(db.Model):
         return '<Debt debt_id={}, title={}>'.format(
             self.debt_id, self.title)
 
-    # @property
-    # def compounds_per_year(self):
-    #     return self._compounds_per_year
-
-    # @compounds_per_year.setter
-    # def compounds_per_year(self, compounds):
-    #     compound_min = 1
-    #     compound_max = 365
-
-    #     if compounds not in range(compound_min, compound_max+1):
-    #         raise ValueError("Value must be between 1 and 365")
-    #     self._compounds_per_year = compounds
-
     @property
     def amount_with_interest(self):
-        amount = self.get_amount_with_interest()
-        # self._amount_with_interest = amount
-        return amount
-
-    # @amount_with_interest.setter
-    # def amount_with_interest(self):
-    #     amount = self.get_amount_with_interest()
-    #     self._amount_with_interest = amount
-
-    def get_amount_with_interest(self):
         principal = self.amount
         if self.fees:
             principal += self.get_fees()
@@ -106,19 +81,20 @@ class Debt(db.Model):
         return relativedelta(datetime.datetime.utcnow(), self.debt_date).years
 
     @staticmethod
-    def get_oldest_debt(person):
-        debts = Debt.query.filter_by(to_whom=person).order_by(Debt.debt_date)
+    def get_oldest_debt(to_whom):
+        debts = Debt.get(to_whom=to_whom)
+        debts = sorted(debts, key=lambda debt: debt.debt_date)
         return debts[0].get_debt_age()
 
     @staticmethod
     def get_totals():
-        people = db.session.query(Debt.to_whom.distinct())
+        people = db.session.query(
+            Debt.to_whom.distinct()).filter_by(is_active=True)
         data = {
-            "moneyLoaned": Debt.get_by_type(debt_type="money", id_only=False),
-            "itemLoaned": Debt.get_by_type(debt_type="item", id_only=False),
-            "itemStored": Debt.get_by_type(debt_type="storage", id_only=False),
-            "promisesMade": Debt.get_by_type(
-                debt_type="promise", id_only=False),
+            "moneyLoaned": Debt.get(debt_type="money"),
+            "itemLoaned": Debt.get(debt_type="item"),
+            "itemStored": Debt.get(debt_type="storage"),
+            "promisesMade": Debt.get(debt_type="promise"),
             "totals": {
                 "people": Debt.get_person_totals(people),
             }
@@ -139,7 +115,7 @@ class Debt(db.Model):
 
         for person in list_of_people:
             oldest_debt = Debt.get_oldest_debt(person)
-            debts = Debt.get_by_person(person, id_only=False)
+            debts = Debt.get(to_whom=person)
             for debt in debts:
                 total = debt.amount_with_interest
             list_of_totals.append((person, total, oldest_debt))
@@ -147,96 +123,63 @@ class Debt(db.Model):
         return list_of_totals
 
     @staticmethod
-    def get_list(id_only=True):
-        if id_only:
-            return [debt.debt_id for debt in Debt.query.all()]
-        else:
-            return [Debt.serialize(debt) for debt in Debt.query.all()]
-
-    @staticmethod
-    def get_by_person(person, id_only=True):
-        if id_only:
-            return [Debt.serialize(debt) for debt in
-                    Debt.query.filter_by(to_whom=person).all()]
+    def get(**kwargs):
+        """
+        if no **kwargs, returns list of all active.
+        """
+        if kwargs:
+            return [debt for debt in
+                    Debt.query.filter_by(is_active=True,
+                                         **kwargs).all()]
         else:
             return [debt for debt in
-                    Debt.query.filter_by(to_whom=person).all()]
-
-    @staticmethod
-    def get_by_type(debt_type, id_only=True):
-        if id_only:
-            return [debt.debt_id for debt in
-                    Debt.query.filter_by(debt_type=debt_type).all()]
-        else:
-            return [Debt.serialize(debt) for debt in
-                    Debt.query.filter_by(debt_type=debt_type).all()]
+                    Debt.query.filter_by(is_active=True).all()]
 
     @staticmethod
     def get_by_id(debt_id):
         debt = Debt.query.filter_by(debt_id=debt_id).first_or_404()
-        return Debt.serialize(debt)
+        return debt
 
-    @staticmethod
-    def serialize(debt):
+    def serialize(self):
         debt_params = {
-            'debt_id': debt.debt_id,
-            'debt_type': debt.debt_type,
-            'title': debt.title,
-            'description': debt.description,
-            'photo': debt.photo,
-            'amount': debt.amount,
-            'interest': debt.interest,
-            'fees': debt.fees,
-            'photo': debt.photo,
-            'to_whom': debt.to_whom,
-            'debt_date': debt.debt_date.strftime('%Y-%m-%d'),
-            'date_created': debt.date_created.strftime('%Y-%m-%d'),
-            'amount_with_interest': debt.amount_with_interest,
-            'compound_frequency': debt.compound_frequency,
-            'is_active': debt.is_active,
+            'debt_id': self.debt_id,
+            'debt_type': self.debt_type,
+            'title': self.title,
+            'description': self.description,
+            'photo': self.photo,
+            'amount': self.amount,
+            'interest': self.interest,
+            'fees': self.fees,
+            'photo': self.photo,
+            'to_whom': self.to_whom,
+            'debt_date': self.debt_date.strftime('%Y-%m-%d'),
+            'date_created': self.date_created.strftime('%Y-%m-%d'),
+            'amount_with_interest': self.amount_with_interest,
+            'compound_frequency': self.compound_frequency,
+            'is_active': self.is_active,
             }
 
-        if debt.date_modified:
-            debt_params['date_modified'] = debt.date_modified.strftime(
+        if self.date_modified:
+            debt_params['date_modified'] = self.date_modified.strftime(
                 '%Y-%m-%d')
 
         return debt_params
 
     @staticmethod
     def update(debt_id, data):
-        debt = Debt.query.filter_by(debt_id=debt_id).first()
-        # should probably validate here
+        debt = Debt.get_by_id(debt_id=debt_id)
+        # should probably validate data here
 
         for key, value in data.iteritems():
             setattr(debt, key, value)
 
         db.session.commit()
-        new_debt = Debt.query.filter_by(debt_id=debt_id).first()
+        new_debt = Debt.get_by_id(debt_id=debt_id)
         return Debt.serialize(new_debt)
 
     @staticmethod
     def delete(debt_id):
-        debt = Debt.query.filter_by(debt_id=debt_id).first()
+        debt = Debt.get_by_id(debt_id=debt_id)
         debt.is_active = False
         db.session.commit()
         return True
-
-
-class Photo(db.Model):
-    photo_id = db.Column(db.Integer, primary_key=True)
-    # alt = db.Column(db.String(120))
-    # title = db.Column(db.String(120))
-    location = db.Column(db.String(200))
-    debt_id = db.Column(db.Integer,
-                        db.ForeignKey('debt.debt_id'))
-    date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    date_modified = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
-
-    def __init__(self, location):
-        # self.title = title
-        # self.alt = alt
-        self.location = location
-
-    def __repr__(self):
-        return '<Photo photo_id={}, title={}>'.format(
-            self.photo_id, self.title)

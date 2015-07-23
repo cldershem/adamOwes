@@ -17,12 +17,6 @@ from app.models import Debt
 mod = Blueprint('api', __name__, url_prefix='/api/v1')
 
 
-# def list_to_dict(list_to_convert):
-#     new_dict = dict(zip([x for x in range(0,
-#                         len(list_to_convert))], list_to_convert))
-#     return new_dict
-
-
 class Response():
     """
     """
@@ -79,10 +73,12 @@ def api():
            defaults={'details': True})
 def get_by_type(debt_type, details):
     if details:
-        data = {'debt_ids': Debt.get_by_type(debt_type, id_only=False)}
+        debts = [debt.serialize() for debt in Debt.get(debt_type=debt_type)]
+        data = {'debt_ids': debts}
         message = "ids url = /debts/type/<debt_type>"
     else:
-        data = {'debt_ids': Debt.get_by_type(debt_type, id_only=True)}
+        debts = [debt.debt_id for debt in Debt.get(debt_type=debt_type)]
+        data = {'debt_ids': debts}
         message = "details url = /debts/type/<debt_type>/details"
     result = Response(
         success=True,
@@ -95,7 +91,8 @@ def get_by_type(debt_type, details):
 
 @mod.route('/debts/id/<int:debt_id>')
 def get_by_id(debt_id):
-    data = {'debt': Debt.get_by_id(debt_id)}
+    debt = Debt.get_by_id(debt_id).serialize()
+    data = {'debt': debt}
     result = Response(
         success=True,
         data=data,
@@ -132,15 +129,19 @@ def update_debt(debt_id):
 @mod.route('/debts/details', defaults={'details': True})
 def get_debts(details):
     if details:
-        data = {'debt_ids': Debt.get_list(id_only=False)}
+        debts = [debt.serialize() for debt in Debt.get()]
+        data = {'debts': debts}
+        length = len(data['debts'])
         message = "ids url = /debts"
     else:
-        data = {'debt_ids': Debt.get_list(id_only=True)}
+        debts = [debt.debt_id for debt in Debt.get()]
+        data = {'debt_ids': debts}
         message = "details url = /debts/details"
+        length = len(data['debt_ids']),
     result = Response(
         success=True,
         data=data,
-        length=len(data['debt_ids']),
+        length=length,
         message=message
         )
     return result.to_json(), 200

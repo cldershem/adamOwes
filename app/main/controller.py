@@ -63,20 +63,20 @@ def index():
 
 @main.route('/debts')
 def list_debts():
-    data = Debt.get_list(id_only=False)
+    data = Debt.get()
     return render_template('list.html', data=data)
 
 
 @main.route('/debts/id/<int:debt_id>')
 def show_debt(debt_id):
-    data = Debt.query.filter_by(debt_id=debt_id).first_or_404()
+    data = Debt.get_by_id(debt_id=debt_id)
     # form = AddNewDebtForm(obj=data)
     return render_template('detail.html', data=data)
 
 
 @main.route('/debts/id/<int:debt_id>/edit', methods=['GET', 'POST'])
 def edit_debt(debt_id):
-    data = Debt.query.filter_by(debt_id=debt_id).first_or_404()
+    data = Debt.get_by_id(debt_id=debt_id)
     form = AddNewDebtForm(obj=data)
     if request.method == 'GET':
         return render_template('edit.html', form=form, debt_id=debt_id)

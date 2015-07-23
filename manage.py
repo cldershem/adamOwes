@@ -22,6 +22,7 @@ manager = Manager(app)
 @manager.option('--environment', 'e', help='development, production, test')
 def run(environment='development'):
     """
+    Runs application on localhost.
     """
     app = create_app(environment)
     app.run()
@@ -31,6 +32,8 @@ def run(environment='development'):
 @manager.option('--environment', 'e', help='development, production, test')
 def run_on_network(environment='development'):
     """
+    Runs application on network making it accessable by other machines on
+    the same network.
     """
     app = create_app('development')
     app.run('0.0.0.0')
@@ -50,9 +53,8 @@ def show_config():
 @manager.command
 def populate_db():
     """
-    Populates db from yaml source.
+    Populates db with random dummy data.
     """
-    # import yaml
     from app.models import (Debt)
     from app import db
     import random
