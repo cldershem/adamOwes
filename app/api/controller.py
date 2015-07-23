@@ -10,7 +10,7 @@ Controller for the api
 :license: see TOPMATTER
 :source: github.com/cldershem/adamOwes
 """
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from app.models import Debt
 
 
@@ -81,6 +81,31 @@ def get_by_id(debt_id):
     result = Response(
         success=True,
         data=data,
+        )
+    return result.to_json(), 200
+
+
+@mod.route('/debts/id/<int:debt_id>', methods=['DELETE'])
+def delete_debt(debt_id):
+    Debt.delete(debt_id)
+    message = "debt_id={} deleted".format(debt_id)
+    result = Response(
+        success=True,
+        message=message,
+        )
+    return result.to_json(), 200
+
+
+@mod.route('/debts/id/<int:debt_id>', methods=['PUT'])
+def update_debt(debt_id):
+    data = request.get_json()
+    updated_debt = Debt.update(debt_id, data)
+
+    message = "debt_id={} updated".format(debt_id)
+    result = Response(
+        success=True,
+        data={'debt': updated_debt},
+        message=message,
         )
     return result.to_json(), 200
 

@@ -15,8 +15,6 @@ import datetime
 from dateutil.relativedelta import relativedelta
 # from decimal import Decimal
 
-DATE_TIME_NOW = datetime.datetime.utcnow()
-
 
 class Debt(db.Model):
     debt_id = db.Column(db.Integer, primary_key=True)
@@ -30,9 +28,10 @@ class Debt(db.Model):
     fees = db.Column(db.Float(20))
     to_whom = db.Column(db.String(30))
     debt_date = db.Column(db.DateTime())
-    date_created = db.Column(db.DateTime, default=DATE_TIME_NOW)
-    date_modified = db.Column(db.DateTime, onupdate=DATE_TIME_NOW)
+    date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    date_modified = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
     compound_frequency = db.Column(db.String(20))
+    is_active = db.Column(db.Boolean())
 
     compound_frequency_to_int = {
         'daily': 365,
@@ -55,6 +54,7 @@ class Debt(db.Model):
         self.fees = fees
         self.title = title
         self.compound_frequency = compound_frequency
+        self.is_active = True
 
     def __repr__(self):
         return '<Debt debt_id={}, title={}>'.format(
@@ -103,7 +103,7 @@ class Debt(db.Model):
         return self.fees
 
     def get_debt_age(self):
-        return relativedelta(DATE_TIME_NOW, self.debt_date).years
+        return relativedelta(datetime.datetime.utcnow(), self.debt_date).years
 
     @staticmethod
     def get_oldest_debt(person):
@@ -193,6 +193,7 @@ class Debt(db.Model):
             'date_created': debt.date_created.strftime('%Y-%m-%d'),
             'amount_with_interest': debt.amount_with_interest,
             'compound_frequency': debt.compound_frequency,
+            'is_active': debt.is_active,
             }
 
         if debt.date_modified:
@@ -200,6 +201,25 @@ class Debt(db.Model):
                 '%Y-%m-%d')
 
         return debt_params
+
+    @staticmethod
+    def update(debt_id, data):
+        debt = Debt.query.filter_by(debt_id=debt_id).first()
+        # should probably validate here
+
+        for key, value in data.iteritems():
+            setattr(debt, key, value)
+
+        db.session.commit()
+        new_debt = Debt.query.filter_by(debt_id=debt_id).first()
+        return Debt.serialize(new_debt)
+
+    @staticmethod
+    def delete(debt_id):
+        debt = Debt.query.filter_by(debt_id=debt_id).first()
+        debt.is_active = False
+        db.session.commit()
+        return True
 
 
 class Photo(db.Model):
@@ -209,8 +229,8 @@ class Photo(db.Model):
     location = db.Column(db.String(200))
     debt_id = db.Column(db.Integer,
                         db.ForeignKey('debt.debt_id'))
-    date_created = db.Column(db.DateTime, default=DATE_TIME_NOW)
-    date_modified = db.Column(db.DateTime, onupdate=DATE_TIME_NOW)
+    date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    date_modified = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
 
     def __init__(self, location):
         # self.title = title

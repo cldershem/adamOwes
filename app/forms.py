@@ -36,7 +36,7 @@ class AddNewDebtForm(Form):
                           validators=[DataRequired()], description="0.00")
     interest = StringField('Interest', description="0.00")
     fees = DecimalField('Fees', places=2, rounding=None, description="0.00")
-    compounds_per_year = SelectField('Compounds Per Year',
+    compound_frequency = SelectField('Compounds Per Year',
                                      choices=[
                                          ('daily', 'Daily'),
                                          ('weekly', 'Weekly'),
@@ -47,9 +47,9 @@ class AddNewDebtForm(Form):
                                          ],
                                      default=1,
                                      validators=[DataRequired()])
-    date = DateField('Date', format='%Y-%m-%d',
-                     description="YYYY-MM-DD")
-    person_owed = StringField('To Whom',
-                              validators=[DataRequired()],
-                              description="John Smith")
+    debt_date = DateField('Date', format='%Y-%m-%d',
+                          description="YYYY-MM-DD")
+    to_whom = StringField('To Whom',
+                          validators=[DataRequired()],
+                          description="John Smith")
     submit = SubmitField('Submit')

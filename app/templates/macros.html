@@ -236,23 +236,6 @@
       {{ render_table_section('itemStored', 'Item Stored', data['itemStored']) }}
       {{ render_table_section('promisesMade', 'Promises Made', data['promisesMade']) }}
 
-      {#
-      <tbody id="addNewDebt-OneLine">
-        <tr>
-          <th>Add New Debt</th>
-        </tr>
-        <form action="" method="POST" role="form">
-          {% for field in form %}
-            <tr>
-              <td>
-                {{ render_field(field) }}
-              </td>
-            </tr>
-          {% endfor %}
-        </form>
-      </tbody>
-      #}
-
       <tbody id="addNewDebt">
         <tr>
           <td>
