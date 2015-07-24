@@ -1,0 +1,12 @@
+<!-- extends base.html -->
+{% extends "base.html" %}
+{% from "macros.html" import render_form with context %}
+{% block title %}{{page_title}}{% endblock %}
+{% block content %}
+  <div id='content'>
+    <form action="" method="POST" role="form">
+      {{ render_form(form) }}
+    </form>
+  </div><!-- end #content-->
+{% endblock %}{% block footer %}
+{% endblock %}

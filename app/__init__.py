@@ -14,15 +14,23 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from config import config
 from utils import format_datetime
+from flask.ext.login import LoginManager
+from flask.ext.bcrypt import Bcrypt
 
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
+lm = LoginManager()
 
 
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
+    lm.init_app(app)
+    lm.login_view = "users.login"
+    # bcrypt = Bcrypt()
+    bcrypt.init_app(app)
 
     app.jinja_env.filters['format_datetime'] = format_datetime
 
@@ -31,9 +39,11 @@ def create_app(config_name):
         db.create_all()
 
     from main import main as main_module
-    from api.controller import mod as api_module
+    from api import api as api_module
+    from user import user as user_module
 
     app.register_blueprint(main_module)
     app.register_blueprint(api_module)
+    app.register_blueprint(user_module)
 
     return app

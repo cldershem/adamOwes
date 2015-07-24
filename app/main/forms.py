@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-app.forms
+app.main.forms
 ~~~~~~~~~~~~~~~~~
 
 Forms needed throughout app.
@@ -13,7 +13,7 @@ Forms needed throughout app.
 from flask_wtf import Form
 from wtforms import (StringField, SelectField, SubmitField,
                      FileField, DecimalField)  # , DateField)
-from wtforms.validators import (DataRequired, )
+from wtforms.validators import (InputRequired, )
 from wtforms.fields.html5 import DateField
 
 
@@ -28,13 +28,17 @@ class AddNewDebtForm(Form):
                                 ('storage', 'Item Stored'),
                                 ('promise', 'Promises Made'),
                                 ],
-                            validators=[DataRequired()])
+                            validators=[InputRequired(
+                                message="Please select something.")])
     description = StringField('Description',
-                              validators=[DataRequired()],
+                              validators=[InputRequired(
+                                  message="Plase enter something.")],
                               description="120 characters max")
     photo = FileField('Photo')
     amount = DecimalField('Initial Amount', places=2, rounding=None,
-                          validators=[DataRequired()], description="0.00")
+                          validators=[InputRequired(
+                              message="Enter a dollar amount."
+                              )], description="0.00")
     interest = StringField('Interest', description="0.00")
     fees = DecimalField('Fees', places=2, rounding=None, description="0.00")
     compound_frequency = SelectField('Compounds Per Year',
@@ -47,10 +51,12 @@ class AddNewDebtForm(Form):
                                          ('annually', 'Annually'),
                                          ],
                                      default=1,
-                                     validators=[DataRequired()])
+                                     validators=[InputRequired(
+                                         message="Please select something.")])
     debt_date = DateField('Date', format='%Y-%m-%d',
                           description="chrome=MM-DD-YYYY, firefox=YYYY-MM-DD")
     to_whom = StringField('To Whom',
-                          validators=[DataRequired()],
+                          validators=[InputRequired(
+                              message="Please enter something.")],
                           description="John Smith")
     submit = SubmitField('Submit')

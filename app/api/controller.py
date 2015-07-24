@@ -10,11 +10,9 @@ Controller for the api
 :license: see TOPMATTER
 :source: github.com/cldershem/adamOwes
 """
-from flask import Blueprint, jsonify, request
+from flask import jsonify, request
 from app.models import Debt
-
-
-mod = Blueprint('api', __name__, url_prefix='/api/v1')
+from . import api
 
 
 class Response():
@@ -41,35 +39,13 @@ class Response():
             self.success, self.data, self.error)
 
 
-class APIError(Exception):
-    status_code = 400
-
-    def __init__(self, message, status_code=None, data=None):
-        Exception.__init__(self)
-        self.message = message
-        if status_code is not None:
-            self.status_code = status_code
-        # if data is not None:
-        self.data = data
-        self.response = Response(
-            success=False,
-            data=data,
-            message=message,
-            )
+@api.route('/')
+def api_index():
+    raise api.APIError('API docs, not yet implemented.', status_code=501)
 
 
-@mod.errorhandler(APIError)
-def handle_invalid_usage(error):
-    return error.response.to_json()
-
-
-@mod.route('/')
-def api():
-    raise APIError('API docs, not yet implemented.', status_code=501)
-
-
-@mod.route('/debts/type/<string:debt_type>', defaults={'details': False})
-@mod.route('/debts/type/<string:debt_type>/details',
+@api.route('/debts/type/<string:debt_type>', defaults={'details': False})
+@api.route('/debts/type/<string:debt_type>/details',
            defaults={'details': True})
 def get_by_type(debt_type, details):
     if details:
@@ -89,7 +65,7 @@ def get_by_type(debt_type, details):
     return result.to_json(), 200
 
 
-@mod.route('/debts/id/<int:debt_id>')
+@api.route('/debts/id/<int:debt_id>')
 def get_by_id(debt_id):
     debt = Debt.get_by_id(debt_id=debt_id).serialize()
     data = {'debt': debt}
@@ -100,7 +76,7 @@ def get_by_id(debt_id):
     return result.to_json(), 200
 
 
-@mod.route('/debts/id/<int:debt_id>', methods=['DELETE'])
+@api.route('/debts/id/<int:debt_id>', methods=['DELETE'])
 def delete_debt(debt_id):
     Debt.delete(debt_id)
     message = "debt_id={} deleted".format(debt_id)
@@ -111,7 +87,7 @@ def delete_debt(debt_id):
     return result.to_json(), 200
 
 
-@mod.route('/debts/id/<int:debt_id>', methods=['PUT'])
+@api.route('/debts/id/<int:debt_id>', methods=['PUT'])
 def update_debt(debt_id):
     data = request.get_json()
     updated_debt = Debt.update(debt_id, data)
@@ -125,8 +101,8 @@ def update_debt(debt_id):
     return result.to_json(), 200
 
 
-@mod.route('/debts', defaults={'details': False})
-@mod.route('/debts/details', defaults={'details': True})
+@api.route('/debts', defaults={'details': False})
+@api.route('/debts/details', defaults={'details': True})
 def get_debts(details):
     if details:
         debts = [debt.serialize() for debt in Debt.get()]

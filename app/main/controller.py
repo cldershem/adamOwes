@@ -14,7 +14,7 @@ from flask import (render_template, request, flash, current_app, redirect,
                    url_for, g, session)
 from app import db
 from app.models import Debt  # , Photo
-from app.forms import AddNewDebtForm
+from app.main.forms import AddNewDebtForm
 from . import main
 from werkzeug import secure_filename
 

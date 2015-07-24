@@ -10,13 +10,17 @@ DB models for application
 :license: see TOPMATTER
 :source: github.com/cldershem/adamOwes
 """
-from app import db
+from app import db, bcrypt
 import datetime
 from dateutil.relativedelta import relativedelta
-from utils import format_datetime
+from utils import format_datetime, serializer, timed_serializer
+from itsdangerous import (BadSignature, SignatureExpired)
 
 
 class Debt(db.Model):
+    """
+    Defines db model for `Debt`.
+    """
     debt_id = db.Column(db.Integer, primary_key=True)
     debt_type = db.Column(db.String(20))
     title = db.Column(db.String(20))
@@ -186,3 +190,131 @@ class Debt(db.Model):
         debt.is_active = False
         db.session.commit()
         return True
+
+
+class User(db.Model):
+    """
+    Defines db model for `User`.
+    """
+    user_id = db.Column(db.Integer, primary_key=True)
+    firstname = db.Column(db.String(30))
+    lastname = db.Column(db.String(30))
+    email = db.Column(db.String(50))
+    _password = db.Column(db.String(50))
+    confirmed = db.Column(db.DateTime())
+    last_seen = db.Column(db.DateTime())
+    date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+    date_modified = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
+    is_active = db.Column(db.Boolean())
+    _api_key = db.Column(db.String(50))
+    # roles
+
+    def __init__(self, firstname, lastname, email, password):
+        self.firstname = firstname
+        self.lastname = lastname
+        self.email = email
+        self.password = password
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, password):
+        self._password = bcrypt.generate_password_hash(password)
+        return password
+
+    @property
+    def api_key(self):
+        return self._api_key
+
+    @api_key.setter
+    def api_key(self):
+        self._api_key = bcrypt.generate_password_hash(self.email)
+        return self._api_key
+
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+
+    def is_authenticated(self):
+        return True
+
+    def activate(self):
+        self.confirmed = datetime.dateime.utcnow()
+        # self.roles.can_login = True
+
+    @property
+    def is_active(self):
+        return True
+
+    def get_id(self):
+        return self.email
+
+    def __repr__(self):
+        return '<User {}, {}>'.format(self.firstname, self.email)
+
+    def __unicode__(self):
+        return self.email
+
+    def is_admin(self):
+        pass
+
+    @staticmethod
+    def get(**kwargs):
+        """
+        if no **kwargs, returns list of all active.
+        """
+        if kwargs:
+            return [user for user in
+                    User.query.filter_by(is_active=True,
+                                         **kwargs).all()]
+        else:
+            return [user for user in
+                    User.query.filter_by(is_active=True).all()]
+
+    @staticmethod
+    def get_activation_link(user):
+        user_id = user.get_id()
+        s = serializer()
+        payload = s.dumps(user_id)
+        return payload
+
+    @staticmethod
+    def check_activation_link(payload):
+        s = serializer()
+        try:
+            user_id = s.loads(payload)
+        except BadSignature:
+            return False
+        return user_id
+
+    @staticmethod
+    def get_password_reset_link(user):
+        user_id = user.get_id()
+        s = timed_serializer()
+
+        # disallows password reset link to be reused
+        old_hash = user.password[:10]
+        payload = s.dumps(user_id + old_hash)
+        return payload
+
+    @staticmethod
+    def check_password_reset_link(payload):
+        s = timed_serializer()
+
+        try:
+            # disallows password reset link to be reused
+            unhashed_payload = s.loads(payload, max_age=86400)
+            old_hash = unhashed_payload[
+                len(unhashed_payload)-10:len(unhashed_payload)]
+            user_id = unhashed_payload[:-10]
+        except SignatureExpired or BadSignature:
+            return False
+        return (user_id, old_hash)
+
+
+# class Roles(db.Model):
+#     """
+#     Defines db model for `User`.
+#     """
+#     pass
