@@ -59,6 +59,9 @@ class Debt(db.Model):
         return '<Debt debt_id={}, title={}>'.format(
             self.debt_id, self.title)
 
+    def __unicode__(self):
+        return 'Debt id={}'.format(self.debt_id)
+
     @property
     def amount_with_interest(self):
         principal = self.amount
