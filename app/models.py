@@ -13,6 +13,7 @@ DB models for application
 from app import db
 import datetime
 from dateutil.relativedelta import relativedelta
+from utils import format_datetime
 
 
 class Debt(db.Model):
@@ -152,16 +153,15 @@ class Debt(db.Model):
             'fees': self.fees,
             'photo': self.photo,
             'to_whom': self.to_whom,
-            'debt_date': self.debt_date.strftime('%Y-%m-%d'),
-            'date_created': self.date_created.strftime('%Y-%m-%d'),
+            'debt_date': format_datetime(self.debt_date),
+            'date_created': format_datetime(self.date_created),
             'amount_with_interest': self.amount_with_interest,
             'compound_frequency': self.compound_frequency,
             'is_active': self.is_active,
             }
 
         if self.date_modified:
-            debt_params['date_modified'] = self.date_modified.strftime(
-                '%Y-%m-%d')
+            debt_params['date_modified'] = format_datetime(self.date_modified)
 
         return debt_params
 

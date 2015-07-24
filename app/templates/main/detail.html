@@ -46,7 +46,7 @@
       </tr>
       <tr>
         <td>Date</td>
-        <td>{{ data.debt_date.strftime('%Y-%m-%d') }}</td>
+        <td>{{ data.debt_date | format_datetime }}</td>
       </tr>
       <tr>
         <td>Total</td>
@@ -58,11 +58,11 @@
       </tr>
       <tr>
         <td>Date Created</td>
-        <td>{{ data.date_created.strftime('%Y-%m-%d') }}</td>
+        <td>{{ data.date_created | format_datetime }}</td>
       </tr>
       <tr>
         <td>Date Last Modified</td>
-        <td>{{ data.date_modified.strftime('%Y-%m-%d') }}</td>
+        <td>{{ data.date_modified| format_datetime }}</td>
       </tr>
 
       <tr>
