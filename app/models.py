@@ -13,9 +13,10 @@ DB models for application
 from app import db, bcrypt
 import datetime
 from dateutil.relativedelta import relativedelta
-from utils import format_datetime, serializer, timed_serializer
+from utils import (format_datetime, serializer, timed_serializer, send_email)
 from itsdangerous import (BadSignature, SignatureExpired)
 from app.emails import email_confirmation
+from flask import render_template
 
 
 class Debt(db.Model):
@@ -358,6 +359,35 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
         return self.get_by_id(email=self.email)
+
+    @staticmethod
+    def email_confirmation(user, payload):
+        """
+        """
+        subject = "[adamOwes] - confirm email"
+        recipients = [user.email]
+        text_body = render_template("emails/email_confirmation.txt",
+                                    user=user, payload=payload)
+        html_body = render_template("emails/email_confirmation.html",
+                                    user=user, payload=payload)
+
+        send_email(subject, recipients, text_body, html_body)
+        return True
+
+    @staticmethod
+    def email_password_reset(user, payload):
+        """
+        """
+        subject = "[adamOwes] - password reset"
+        recipients = [user.email]
+        text_body = render_template("emails/password_reset.txt",
+                                    user=user, payload=payload)
+        html_body = render_template("emails/password_rest.html",
+                                    user=user, payload=payload)
+
+        send_email(subject, recipients, text_body, html_body)
+
+        return True
 
 
 # class Roles(db.Model):

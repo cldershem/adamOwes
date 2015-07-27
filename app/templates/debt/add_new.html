@@ -1,0 +1,18 @@
+<!-- extends base.html -->
+{% extends "base.html" %}
+{% from "macros.html" import render_form with context %}
+{% block title %}Edit{% endblock %}
+{% block content %}
+  <div id='content'>
+      <tbody id="addNewDebt">
+        <tr>
+          <td>
+            <form action="" method="POST" role="form" enctype="multipart/form-data">
+              {{ render_form(form) }}
+            </form>
+          </td>
+        </tr>
+      </tbody>
+  </div><!-- end #content-->
+{% endblock %}{% block footer %}
+{% endblock %}

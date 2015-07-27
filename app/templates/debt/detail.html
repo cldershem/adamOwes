@@ -62,7 +62,11 @@
       </tr>
       <tr>
         <td>Date Last Modified</td>
-        <td>{{ data.date_modified| format_datetime }}</td>
+        <td>
+        {% if data.date_modified %}
+          {{ data.date_modified | format_datetime }}
+        {% endif %}
+      </td>
       </tr>
 
       <tr>

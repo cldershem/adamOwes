@@ -15,8 +15,12 @@ from functools import wraps
 from flask.ext.login import current_user
 from flask import flash, redirect, url_for
 from threading import Thread
+# from config import ADMINS
+from app import mail
+from flask.ext.mail import Message
 
 
+ADMINS = 'cldershem@gmail.com'
 SECRET_KEY = "WHY CANT I IMPORT A CONFIG?!?!!?!"
 
 
@@ -58,3 +62,22 @@ def async(func):
         thread = Thread(target=func, args=args, kwargs=kwargs)
         thread.start()
     return wrapper
+
+
+@async
+def send_async_email(message):
+    """
+    """
+    # from app import app
+    # with app.app_context():
+    mail.send(message)
+
+
+def send_email(subject, recipients, text_body, html_body, sender=ADMINS[0]):
+    """
+    """
+    message = Message(subject, sender=sender, recipients=recipients)
+    message.body = text_body
+    message.html = html_body
+    send_async_email(message)
+    return True

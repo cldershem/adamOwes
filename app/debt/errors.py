@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-app.main.forms
+user.errors
 ~~~~~~~~~~~~~~~~~
 
-Forms needed throughout app.
+Default errors for debt blueprint.
 
 :copyright: (c) 2015 by Cameron Dershem.
 :license: see TOPMATTER
-:source: github.com/cldershem/adamOwes
+:source: github.com/cldershem/$SOME_REPO
 """

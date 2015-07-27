@@ -43,9 +43,11 @@ def create_app(config_name):
     from main import main as main_module
     from api import api as api_module
     from user import user as user_module
+    from debt import debt as debt_module
 
     app.register_blueprint(main_module)
     app.register_blueprint(api_module)
     app.register_blueprint(user_module)
+    app.register_blueprint(debt_module)
 
     return app
