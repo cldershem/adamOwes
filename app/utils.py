@@ -13,14 +13,13 @@ Misc utilities for use throughout the application.
 from itsdangerous import (URLSafeSerializer, URLSafeTimedSerializer)
 from functools import wraps
 from flask.ext.login import current_user
-from flask import flash, redirect, url_for
+from flask import (flash, redirect, url_for, current_app,
+                   copy_current_request_context)
 from threading import Thread
-# from config import ADMINS
 from flask.ext.mail import Message
 # from app import mail
 
 
-ADMINS = 'cldershem@gmail.com'
 SECRET_KEY = "WHY CANT I IMPORT A CONFIG?!?!!?!"
 
 
@@ -64,20 +63,20 @@ def async(func):
     return wrapper
 
 
-@async
+# @async
 def send_async_email(message):
     """
     """
-    # from app import app
-    # with app.app_context():
-    # mail.send(message)
-    pass
+    from app import mail
+    with current_app.app_context():
+        mail.send(message)
 
 
-def send_email(subject, recipients, text_body, html_body, sender=ADMINS[0]):
+# @copy_current_request_context
+def send_email(subject, recipients, text_body, html_body):
     """
     """
-    message = Message(subject, sender=sender, recipients=recipients)
+    message = Message(subject, recipients=recipients)
     message.body = text_body
     message.html = html_body
     send_async_email(message)
