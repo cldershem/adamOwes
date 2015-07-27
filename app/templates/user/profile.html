@@ -1,0 +1,10 @@
+<!-- extends base.html -->
+{% extends "base.html" %}
+{% block title %}{{page_title}}{% endblock %}
+{% block content %}
+  <div id='content'>
+    <h2>User {{user.email}}'s Profile</h2>
+    <p>Last seen: {{user.last_seen}}</p>
+  </div><!-- end #content-->
+{% endblock %}{% block footer %}
+{% endblock %}

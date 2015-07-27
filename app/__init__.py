@@ -16,11 +16,13 @@ from config import config
 from utils import format_datetime
 from flask.ext.login import LoginManager
 from flask.ext.bcrypt import Bcrypt
+from flask.ext.mail import Mail
 
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 lm = LoginManager()
+mail = Mail()
 
 
 def create_app(config_name):
@@ -28,9 +30,9 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     lm.init_app(app)
-    lm.login_view = "users.login"
-    # bcrypt = Bcrypt()
+    lm.login_view = "user.login"
     bcrypt.init_app(app)
+    mail.init_app(app)
 
     app.jinja_env.filters['format_datetime'] = format_datetime
 

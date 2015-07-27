@@ -15,6 +15,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from utils import format_datetime, serializer, timed_serializer
 from itsdangerous import (BadSignature, SignatureExpired)
+from app.emails import email_confirmation
 
 
 class Debt(db.Model):
@@ -173,6 +174,13 @@ class Debt(db.Model):
         return debt_params
 
     @staticmethod
+    def create(debt):
+        db.session.add(debt)
+        db.session.commit()
+        new_debt = Debt.get_by_id(debt_id=debt.debt_id)
+        return new_debt
+
+    @staticmethod
     def update(debt_id, data):
         debt = Debt.get(debt_id=debt_id)[0]
         # should probably validate data here
@@ -202,10 +210,10 @@ class User(db.Model):
     email = db.Column(db.String(50))
     _password = db.Column(db.String(50))
     confirmed = db.Column(db.DateTime())
-    last_seen = db.Column(db.DateTime())
+    _last_seen = db.Column(db.DateTime())
     date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_modified = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
-    is_active = db.Column(db.Boolean())
+    _is_active = db.Column(db.Boolean())
     _api_key = db.Column(db.String(50))
     # roles
 
@@ -239,16 +247,22 @@ class User(db.Model):
     def is_authenticated(self):
         return True
 
+    def is_anonymous(self):
+        """
+        Returns `True` if user is logged in.  Returns `False` if user
+        not logged in.
+        """
+        return False
+
     def activate(self):
-        self.confirmed = datetime.dateime.utcnow()
+        self.confirmed = datetime.datetime.utcnow()
         # self.roles.can_login = True
 
-    @property
     def is_active(self):
         return True
 
     def get_id(self):
-        return self.email
+        return str(self.email)
 
     def __repr__(self):
         return '<User {}, {}>'.format(self.firstname, self.email)
@@ -258,6 +272,15 @@ class User(db.Model):
 
     def is_admin(self):
         pass
+
+    @property
+    def last_seen(self):
+        return self._last_seen
+
+    @last_seen.setter
+    def last_seen(self, date):
+        self._last_seen = date
+        return self.last_seen
 
     @staticmethod
     def get(**kwargs):
@@ -271,6 +294,11 @@ class User(db.Model):
         else:
             return [user for user in
                     User.query.filter_by(is_active=True).all()]
+
+    @staticmethod
+    def get_by_id(email):
+        user = User.query.filter_by(email=email).first_or_404()
+        return user
 
     @staticmethod
     def get_activation_link(user):
@@ -311,6 +339,25 @@ class User(db.Model):
         except SignatureExpired or BadSignature:
             return False
         return (user_id, old_hash)
+
+    @staticmethod
+    def create(new_user):
+        db.session.add(new_user)
+        db.session.commit()
+        payload = User.get_activation_link(new_user)
+        email_confirmation(new_user, payload)
+
+        # TODO: make this work
+        new_user.activate()
+        new_user.save()
+
+        new_user = User.get_by_id(email=new_user.email)
+        return new_user
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+        return self.get_by_id(email=self.email)
 
 
 # class Roles(db.Model):

@@ -78,6 +78,8 @@ def get_by_id(debt_id):
 
 @api.route('/debts/id/<int:debt_id>', methods=['DELETE'])
 def delete_debt(debt_id):
+    raise api.APIError('You are unauthenticated', status_code=401)
+
     Debt.delete(debt_id)
     message = "debt_id={} deleted".format(debt_id)
     result = Response(
@@ -89,6 +91,8 @@ def delete_debt(debt_id):
 
 @api.route('/debts/id/<int:debt_id>', methods=['PUT'])
 def update_debt(debt_id):
+    raise api.APIError('You are unauthenticated', status_code=401)
+
     data = request.get_json()
     updated_debt = Debt.update(debt_id, data)
 

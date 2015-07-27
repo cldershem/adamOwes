@@ -4,14 +4,14 @@
 app.users.controller
 ~~~~~~~~~~~~~~~~~
 
-Controller for Users blueprint.
+Controller for User blueprint.
 
 :copyright: (c) 2015 by Cameron Dershem.
 :license: see TOPMATTER
 :source: github.com/cldershem/adamOwes
 """
-from flask import (render_template, url_for, request, redirect,
-                   flash, g, abort, session)
+from flask import (render_template, url_for, request, redirect, flash, g,
+                   abort, session)
 from app import lm
 from .forms import (LoginForm, RegisterUserForm, ForgotPasswordForm,
                     ResetPasswordForm)
@@ -19,12 +19,13 @@ from . import user
 from app.models import User
 from flask.ext.login import (login_user, logout_user, current_user,
                              login_required)
-# from app.utils import anon_required
+from app.utils import anon_required
+import datetime
 
 
 @lm.user_loader
 def load_user(user_id):
-    user = User.get(email=user_id)
+    user = User.get_by_id(email=user_id)
     return user
 
 
@@ -33,8 +34,8 @@ def before_request():
     g.user = current_user
 
 
-# @anon_required
 @user.route('/login', methods=['GET', 'POST'])
+@anon_required
 def login():
     form = LoginForm()
     page_title = 'Login'
@@ -43,19 +44,35 @@ def login():
         return render_template('user_action.html', form=form,
                                page_title=page_title)
     elif request.method == 'POST':
-        return render_template('user_action.html', form=form,
-                               page_title=page_title)
+        if form.validate():
+            user = User.get_by_id(email=form.email.data.lower().strip())
+            if user.confirmed and user.is_active:
+                login_user(user)
+                user.last_seen = datetime.datetime.utcnow()
+                user.save()
+                return redirect(request.args.get('next') or
+                                url_for('.profile', user_id=user.get_id()))
+            else:
+                flash("Please confirm your email.")
+                return render_template('user_action.html', form=form,
+                                       page_title=page_title)
+        else:
+            flash("Form didn't validate.")
+            return render_template('user_action.html', form=form,
+                                   page_title=page_title)
 
 
 @user.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return 'logout'
+    session.clear()
+    flash("You've been logged out.")
+    return redirect(url_for('main.index'))
 
 
 @user.route('/register', methods=['GET', 'POST'])
-# @anon_required
+@anon_required
 def register():
     form = RegisterUserForm()
     page_title = 'Register'
@@ -64,23 +81,51 @@ def register():
         return render_template('user_action.html', form=form,
                                page_title=page_title)
     elif request.method == 'POST':
-        return render_template('user_action.html', form=form,
-                               page_title=page_title)
+        if form.validate():
+            new_user = User(
+                firstname=form.firstname.data.title(),
+                lastname=form.lastname.data.title(),
+                email=form.email.data.lower().strip(),
+                password=form.password.data,
+                )
+            new_user = User.create(new_user)
+            flash("Form all good.")
+            flash("Registered {}.".format(new_user.email))
+            flash("Please confirm your email address by checking your email.")
+            return redirect(url_for('.login'))
+        else:
+            flash("Form didn't validate.")
+            return render_template('user_action.html', form=form,
+                                   page_title=page_title)
 
 
 @user.route('/activate/<payload>')
-# @anon_required
+@anon_required
 def activate_user(payload):
-    return 'activate'
+    user_email = User.check_activation_link(payload)
+    if not user_email:
+        return abort(404)
+    user = User.get_by_id(email=user_email)
+    if user:
+        if not user.confirmed:
+            user.activate_user()
+            user.save()
+            flash('Your account has been activated.')
+        else:
+            flash('Your account was already active.')
+        return redirect(url_for('.login'))
+    else:
+        return abort(404)
 
 
 @user.route('/forgotpassword', methods=['GET', 'POST'])
-# @anon_required
+@anon_required
 def forgot_password():
     form = ForgotPasswordForm()
     page_title = 'Forgot Password'
 
     if request.method == 'GET':
+        flash("Not Implemented yet.")
         return render_template('user_action.html', form=form,
                                page_title=page_title)
     elif request.method == 'POST':
@@ -89,12 +134,13 @@ def forgot_password():
 
 
 @user.route('/resetpassword/<payload>', methods=['GET', 'POST'])
-# @anon_required
+@anon_required
 def reset_password(payload):
     form = ResetPasswordForm()
     page_title = 'Reset Password'
 
     if request.method == 'GET':
+        flash("Not Implemented yet.")
         return render_template('user_action.html', form=form,
                                page_title=page_title)
     elif request.method == 'POST':
@@ -103,6 +149,7 @@ def reset_password(payload):
 
 
 @user.route('/profile/<user_id>')
-def profiles(user_id):
-    # user = User.get(email=user_id)
-    return 'profile'
+def profile(user_id):
+    user = User.get_by_id(email=user_id)
+    page_title = "{}'s profile".format(user.email)
+    return render_template('profile.html', user=user, page_title=page_title)

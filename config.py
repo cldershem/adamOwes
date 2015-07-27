@@ -22,6 +22,13 @@ class Config:
     CSRF_ENABLED = True
     SECRET_KEY = secrets.SECRET_KEY
     UPLOAD_DIR = os.path.join(BASE_DIR, 'app/static/img/uploads/')
+    MAIL_SERVER = 'smtp.googlemail.com'
+    MAIL_PORT = 465
+    MAIL_USE_TLS = False
+    MAIL_USE_SSL = True
+    MAIL_DEFAULT_SENDER = 'cldershem@gmail.com'
+    MAIL_USERNAME = secrets.MAIL_USERNAME
+    MAIL_PASSWORD = secrets.MAIL_PASSWORD
 
     @staticmethod
     def init_app(app):

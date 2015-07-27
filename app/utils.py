@@ -11,10 +11,13 @@ Misc utilities for use throughout the application.
 :source: github.com/cldershem/adamOwes
 """
 from itsdangerous import (URLSafeSerializer, URLSafeTimedSerializer)
-from app import config
 from functools import wraps
 from flask.ext.login import current_user
 from flask import flash, redirect, url_for
+from threading import Thread
+
+
+SECRET_KEY = "WHY CANT I IMPORT A CONFIG?!?!!?!"
 
 
 def format_datetime(date, dt_format='%Y-%m-%d'):
@@ -23,13 +26,13 @@ def format_datetime(date, dt_format='%Y-%m-%d'):
 
 def serializer(secret_key=None):
     if secret_key is None:
-        secret_key = config.SECRET_KEY
+        secret_key = SECRET_KEY
     return URLSafeSerializer(secret_key)
 
 
 def timed_serializer(secret_key=None):
     if secret_key is None:
-        secret_key = config.SECRET_KEY
+        secret_key = SECRET_KEY
     return URLSafeTimedSerializer(secret_key)
 
 
@@ -41,7 +44,17 @@ def anon_required(func):
     def wrapper(*args, **kwargs):
         if current_user.is_authenticated():
             flash("Please logout to use this feature.")
-            return redirect(url_for('index'))
+            return redirect(url_for('main.index'))
         else:
             return func(*args, **kwargs)
-        return wrapper
+    return wrapper
+
+
+def async(func):
+    """
+    Enables process to run in the background while page is loaded.
+    """
+    def wrapper(*args, **kwargs):
+        thread = Thread(target=func, args=args, kwargs=kwargs)
+        thread.start()
+    return wrapper

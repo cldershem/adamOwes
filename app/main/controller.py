@@ -11,7 +11,7 @@ Main routes for application.
 :source: github.com/cldershem/adamOwes
 """
 from flask import (render_template, request, flash, current_app, redirect,
-                   url_for, g, session)
+                   url_for, session)
 from app import db
 from app.models import Debt  # , Photo
 from app.main.forms import AddNewDebtForm
@@ -52,10 +52,7 @@ def index():
                 form.photo.data.save(
                     current_app.config['UPLOAD_DIR'] + filename)
                 new_debt.photo = filename
-            db.session.add(new_debt)
-            db.session.commit()
-            g.newest_id = new_debt.debt_id
-            data = new_debt.debt_id
+            new_debt = Debt.create(new_debt)
             session['newest_id'] = new_debt.debt_id
             flash("Form all good.")
             return redirect(url_for('.index'))
