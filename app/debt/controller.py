@@ -17,6 +17,7 @@ from app.models import Debt  # , Photo
 from app.debt.forms import AddNewDebtForm
 from . import debt
 from werkzeug import secure_filename
+from flask.ext.login import (login_required)
 
 
 @debt.route('/')
@@ -26,6 +27,7 @@ def list_debts():
 
 
 @debt.route('/add', methods=['GET', 'POST'])
+@login_required
 def add_new():
     form = AddNewDebtForm()
 
@@ -67,6 +69,7 @@ def show_debt(debt_id):
 
 
 @debt.route('/id/<int:debt_id>/edit', methods=['GET', 'POST'])
+@login_required
 def edit_debt(debt_id):
     data = Debt.get_by_id(debt_id=debt_id)
     form = AddNewDebtForm(obj=data)
@@ -86,6 +89,7 @@ def edit_debt(debt_id):
 
 # @debt.route('/debts/id/<int:debt_id>', methods=['DELETE'])
 @debt.route('/id/<int:debt_id>/delete')
+@login_required
 def delete_debt(debt_id):
     Debt.delete(debt_id)
     flash('Debt with id={} has been deleted'.format(debt_id))

@@ -7,6 +7,10 @@
     <form action="" method="POST" role="form">
       {{ render_form(form) }}
     </form>
+
+    {% if request.path != '/user/register' %}
+      <a class="btn btn-large btn-info" href="{{ url_for('user.register') }}">Register</a>
+    {% endif %}
   </div><!-- end #content-->
 {% endblock %}{% block footer %}
 {% endblock %}

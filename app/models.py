@@ -15,7 +15,6 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from utils import (format_datetime, serializer, timed_serializer, send_email)
 from itsdangerous import (BadSignature, SignatureExpired)
-from app.emails import email_confirmation
 from flask import render_template
 
 
@@ -346,7 +345,7 @@ class User(db.Model):
         db.session.add(new_user)
         db.session.commit()
         payload = User.get_activation_link(new_user)
-        email_confirmation(new_user, payload)
+        User.email_confirmation(new_user, payload)
 
         # TODO: make this work
         new_user.activate()

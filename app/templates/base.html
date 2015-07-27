@@ -16,6 +16,13 @@
     <header id="header">
       <h1><a href="{{ url_for('main.index')}}">Adam Owes</a></h1>
       <h2>...and he owes it all over town.</h2>
+      <div id="login">
+        {% if current_user.is_anonymous() and request.path != '/user/login'%}
+          <a class="btn btn-large btn-info" href="{{ url_for('user.login') }}">Login</a>
+        {% elif current_user.is_authenticated() %}
+          <a class="btn btn-large btn-info" href="{{ url_for('user.logout') }}">Logout</a>
+        {% endif %}
+      </div><!-- end #login -->
     </header>
     <div id="mainContent">
       <div id="flashMessage">

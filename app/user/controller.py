@@ -16,7 +16,7 @@ from app import lm
 from .forms import (LoginForm, RegisterUserForm, ForgotPasswordForm,
                     ResetPasswordForm)
 from . import user
-from app.models import User
+from app.models import User, Debt
 from flask.ext.login import (login_user, logout_user, current_user,
                              login_required)
 from app.utils import anon_required
@@ -151,5 +151,7 @@ def reset_password(payload):
 @user.route('/profile/<user_id>')
 def profile(user_id):
     user = User.get_by_id(email=user_id)
+    data = Debt.get(to_whom=user.user_id)
     page_title = "{}'s profile".format(user.email)
-    return render_template('profile.html', user=user, page_title=page_title)
+    return render_template('profile.html', user=user,
+                           page_title=page_title, data=data)

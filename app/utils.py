@@ -16,8 +16,8 @@ from flask.ext.login import current_user
 from flask import flash, redirect, url_for
 from threading import Thread
 # from config import ADMINS
-from app import mail
 from flask.ext.mail import Message
+# from app import mail
 
 
 ADMINS = 'cldershem@gmail.com'
@@ -70,7 +70,8 @@ def send_async_email(message):
     """
     # from app import app
     # with app.app_context():
-    mail.send(message)
+    # mail.send(message)
+    pass
 
 
 def send_email(subject, recipients, text_body, html_body, sender=ADMINS[0]):
