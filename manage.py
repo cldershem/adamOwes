@@ -58,10 +58,13 @@ def populate_db():
     from app.models import (Debt)
     from app import db
     import random
-    # from __future__ import division
     from datetime import datetime
+    import os
 
-    # root = './tmp/data/'
+    dev_db = './tmp/dev.sqlite'
+
+    if os.path.isfile(dev_db):
+        os.rename(dev_db, dev_db + '.bak')
 
     db.create_all()
 

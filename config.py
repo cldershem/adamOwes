@@ -45,11 +45,15 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     Testing = True
+    SQLALCHEMY_DATABASE_URI = (
+        'sqlite:///' + os.path.join(BASE_DIR, 'tmp/test.sqlite'))
 
 
 class ProductionConfig(Config):
     DEBUG = False
     TESTING = False
+    SQLALCHEMY_DATABASE_URI = (
+        'sqlite:///' + os.path.join(BASE_DIR, 'tmp/production.sqlite'))
 
 
 config = {
