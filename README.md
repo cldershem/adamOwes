@@ -16,6 +16,7 @@ mkvirtualenv adamOwes
 install dependencies
 ```sh
 pip install -r requirements.txt
+sudo apt-get install rabbitmq-server
 ```
 
 secrets
@@ -38,6 +39,11 @@ run on network
 populate db
 ```sh
 ./manage.py populate_db
+```
+
+run celery
+```sh
+celery -A app worker
 ```
 
 ## LICENSE

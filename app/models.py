@@ -13,9 +13,10 @@ DB models for application
 from app import db, bcrypt
 import datetime
 from dateutil.relativedelta import relativedelta
-from utils import (format_datetime, serializer, timed_serializer, send_email)
+from utils import (format_datetime, serializer, timed_serializer)
 from itsdangerous import (BadSignature, SignatureExpired)
 from flask import render_template
+from emails import send_email
 
 
 class Debt(db.Model):
@@ -145,11 +146,6 @@ class Debt(db.Model):
         else:
             return [debt for debt in
                     Debt.query.filter_by(is_active=True).all()]
-
-    # @staticmethod
-    # def get_by_id(debt_id):
-    #     debt = Debt.query.filter_by(debt_id=debt_id).first_or_404()
-    #     return debt
 
     def serialize(self):
         debt_params = {
@@ -299,11 +295,6 @@ class User(db.Model):
             return [user for user in
                     User.query.filter_by(is_active=True).all()]
 
-    # @staticmethod
-    # def get_by_id(email):
-    #     user = User.query.filter_by(email=email).first_or_404()
-    #     return user
-
     @staticmethod
     def get_activation_link(user):
         user_id = user.get_id()
@@ -391,10 +382,3 @@ class User(db.Model):
         send_email(subject, recipients, text_body, html_body)
 
         return True
-
-
-# class Roles(db.Model):
-#     """
-#     Defines db model for `User`.
-#     """
-#     pass

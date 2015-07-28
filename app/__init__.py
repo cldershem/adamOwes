@@ -17,12 +17,14 @@ from utils import format_datetime
 from flask.ext.login import LoginManager
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.mail import Mail
+from celery import Celery
 
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 lm = LoginManager()
 mail = Mail()
+celery = Celery('app')
 
 
 def create_app(config_name):
@@ -33,6 +35,7 @@ def create_app(config_name):
     lm.login_view = "user.login"
     bcrypt.init_app(app)
     mail.init_app(app)
+    create_celery_app(app, celery)
 
     app.jinja_env.filters['format_datetime'] = format_datetime
 
@@ -51,3 +54,17 @@ def create_app(config_name):
     app.register_blueprint(debt_module)
 
     return app
+
+
+def create_celery_app(app, celery):
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+
+    class ContextTask(TaskBase):
+        abstract = True
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+
+    celery.Task = ContextTask
