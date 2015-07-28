@@ -138,6 +138,12 @@ class Debt(db.Model):
         if no **kwargs, returns list of all active.
         """
         if debt_id:
+            try:
+                return Debt.query.filter_by(debt_id=debt_id).first()
+            except:
+                return False
+
+        if debt_id:
             return Debt.query.filter_by(debt_id=debt_id).first()
         if kwargs:
             return [debt for debt in
@@ -286,7 +292,10 @@ class User(db.Model):
         if no **kwargs, returns list of all active.
         """
         if email:
-            return User.query.filter_by(email=email).first()
+            try:
+                return User.query.filter_by(email=email).first()
+            except:
+                return False
         if kwargs:
             return [user for user in
                     User.query.filter_by(is_active=True,

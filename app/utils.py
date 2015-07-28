@@ -14,10 +14,6 @@ from itsdangerous import (URLSafeSerializer, URLSafeTimedSerializer)
 from functools import wraps
 from flask.ext.login import current_user
 from flask import (flash, redirect, url_for)
-# from threading import Thread
-
-
-SECRET_KEY = "WHY CANT I IMPORT A CONFIG?!?!!?!"
 
 
 def format_datetime(date, dt_format='%Y-%m-%d'):
@@ -25,14 +21,16 @@ def format_datetime(date, dt_format='%Y-%m-%d'):
 
 
 def serializer(secret_key=None):
+    from flask import current_app
     if secret_key is None:
-        secret_key = SECRET_KEY
+        secret_key = current_app.config['SECRET_KEY']
     return URLSafeSerializer(secret_key)
 
 
 def timed_serializer(secret_key=None):
+    from flask import current_app
     if secret_key is None:
-        secret_key = SECRET_KEY
+        secret_key = current_app.config['SECRET_KEY']
     return URLSafeTimedSerializer(secret_key)
 
 
@@ -48,13 +46,3 @@ def anon_required(func):
         else:
             return func(*args, **kwargs)
     return wrapper
-
-
-# def async(func):
-#     """
-#     Enables process to run in the background while page is loaded.
-#     """
-#     def wrapper(*args, **kwargs):
-#         thread = Thread(target=func, args=args, kwargs=kwargs)
-#         thread.start()
-#     return wrapper

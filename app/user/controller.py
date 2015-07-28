@@ -130,9 +130,8 @@ def forgot_password():
                                page_title=page_title)
     elif request.method == 'POST':
         if form.validate():
-            try:
-                user = User.get(email=form.email.data.lower().strip())
-            except:
+            user = User.get(email=form.email.data.lower().strip())
+            if not user:
                 flash("That email does nto exist, please try again.")
                 return render_template('user_action.html',
                                        form=form,
