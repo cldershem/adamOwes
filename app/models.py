@@ -132,10 +132,12 @@ class Debt(db.Model):
         return list_of_totals
 
     @staticmethod
-    def get(**kwargs):
+    def get(debt_id=None, **kwargs):
         """
         if no **kwargs, returns list of all active.
         """
+        if debt_id:
+            return Debt.query.filter_by(debt_id=debt_id).first()
         if kwargs:
             return [debt for debt in
                     Debt.query.filter_by(is_active=True,
@@ -144,10 +146,10 @@ class Debt(db.Model):
             return [debt for debt in
                     Debt.query.filter_by(is_active=True).all()]
 
-    @staticmethod
-    def get_by_id(debt_id):
-        debt = Debt.query.filter_by(debt_id=debt_id).first_or_404()
-        return debt
+    # @staticmethod
+    # def get_by_id(debt_id):
+    #     debt = Debt.query.filter_by(debt_id=debt_id).first_or_404()
+    #     return debt
 
     def serialize(self):
         debt_params = {
@@ -177,7 +179,7 @@ class Debt(db.Model):
     def create(debt):
         db.session.add(debt)
         db.session.commit()
-        new_debt = Debt.get_by_id(debt_id=debt.debt_id)
+        new_debt = Debt.get(debt_id=debt.debt_id)
         return new_debt
 
     @staticmethod
@@ -189,7 +191,7 @@ class Debt(db.Model):
             setattr(debt, key, value)
 
         db.session.commit()
-        new_debt = Debt.get_by_id(debt_id=debt_id)
+        new_debt = Debt.get(debt_id=debt_id)
         return Debt.serialize(new_debt)
 
     @staticmethod
@@ -283,10 +285,12 @@ class User(db.Model):
         return self.last_seen
 
     @staticmethod
-    def get(**kwargs):
+    def get(email=None, **kwargs):
         """
         if no **kwargs, returns list of all active.
         """
+        if email:
+            return User.query.filter_by(email=email).first()
         if kwargs:
             return [user for user in
                     User.query.filter_by(is_active=True,
@@ -295,10 +299,10 @@ class User(db.Model):
             return [user for user in
                     User.query.filter_by(is_active=True).all()]
 
-    @staticmethod
-    def get_by_id(email):
-        user = User.query.filter_by(email=email).first_or_404()
-        return user
+    # @staticmethod
+    # def get_by_id(email):
+    #     user = User.query.filter_by(email=email).first_or_404()
+    #     return user
 
     @staticmethod
     def get_activation_link(user):
@@ -351,13 +355,13 @@ class User(db.Model):
         new_user.activate()
         new_user.save()
 
-        new_user = User.get_by_id(email=new_user.email)
+        new_user = User.get(email=new_user.email)
         return new_user
 
     def save(self):
         db.session.add(self)
         db.session.commit()
-        return self.get_by_id(email=self.email)
+        return self.get(email=self.email)
 
     @staticmethod
     def email_confirmation(user, payload):

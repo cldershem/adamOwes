@@ -25,7 +25,7 @@ import datetime
 
 @lm.user_loader
 def load_user(user_id):
-    user = User.get_by_id(email=user_id)
+    user = User.get(email=user_id)
     return user
 
 
@@ -45,7 +45,7 @@ def login():
                                page_title=page_title)
     elif request.method == 'POST':
         if form.validate():
-            user = User.get_by_id(email=form.email.data.lower().strip())
+            user = User.get(email=form.email.data.lower().strip())
             if user.confirmed and user.is_active:
                 login_user(user)
                 user.last_seen = datetime.datetime.utcnow()
@@ -105,7 +105,7 @@ def activate_user(payload):
     user_email = User.check_activation_link(payload)
     if not user_email:
         return abort(404)
-    user = User.get_by_id(email=user_email)
+    user = User.get(email=user_email)
     if user:
         if not user.confirmed:
             user.activate_user()
@@ -150,7 +150,7 @@ def reset_password(payload):
 
 @user.route('/profile/<user_id>')
 def profile(user_id):
-    user = User.get_by_id(email=user_id)
+    user = User.get(email=user_id)
     data = Debt.get(to_whom=user.user_id)
     page_title = "{}'s profile".format(user.email)
     return render_template('profile.html', user=user,

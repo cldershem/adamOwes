@@ -63,7 +63,7 @@ def add_new():
 
 @debt.route('/id/<int:debt_id>')
 def show_debt(debt_id):
-    data = Debt.get_by_id(debt_id=debt_id)
+    data = Debt.get(debt_id=debt_id)
     # form = AddNewDebtForm(obj=data)
     return render_template('detail.html', data=data)
 
@@ -71,7 +71,7 @@ def show_debt(debt_id):
 @debt.route('/id/<int:debt_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_debt(debt_id):
-    data = Debt.get_by_id(debt_id=debt_id)
+    data = Debt.get(debt_id=debt_id)
     form = AddNewDebtForm(obj=data)
     if request.method == 'GET':
         return render_template('edit.html', form=form, debt_id=debt_id)

@@ -11,6 +11,9 @@
     {% if request.path != '/user/register' %}
       <a class="btn btn-large btn-info" href="{{ url_for('user.register') }}">Register</a>
     {% endif %}
+    {% if request.path == '/user/login' %}
+      <a class="btn btn-large btn-info" href="{{ url_for('user.forgot_password') }}">Forgot Password</a>
+    {% endif %}
   </div><!-- end #content-->
 {% endblock %}{% block footer %}
 {% endblock %}
