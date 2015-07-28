@@ -108,7 +108,7 @@ def activate_user(payload):
     user = User.get(email=user_email)
     if user:
         if not user.confirmed:
-            user.activate_user()
+            user.activate()
             user.save()
             flash('Your account has been activated.')
         else:
@@ -125,12 +125,28 @@ def forgot_password():
     page_title = 'Forgot Password'
 
     if request.method == 'GET':
-        flash("Not Implemented yet.")
-        return render_template('user_action.html', form=form,
+        return render_template('user_action.html',
+                               form=form,
                                page_title=page_title)
     elif request.method == 'POST':
-        return render_template('user_action.html', form=form,
-                               page_title=page_title)
+        if form.validate():
+            try:
+                user = User.get(email=form.email.data.lower().strip())
+            except:
+                flash("That email does nto exist, please try again.")
+                return render_template('user_action.html',
+                                       form=form,
+                                       page_title=page_title)
+
+            payload = User.get_password_reset_link(user)
+            User.email_password_reset(user, payload)
+            flash("Password reset email has been sent.  " +
+                  "Link expires in 24 hours.")
+            return redirect(url_for('main.index'))
+        else:
+            return render_template('user_action.html',
+                                   form=form,
+                                   page_title=page_title)
 
 
 @user.route('/resetpassword/<payload>', methods=['GET', 'POST'])
@@ -138,14 +154,31 @@ def forgot_password():
 def reset_password(payload):
     form = ResetPasswordForm()
     page_title = 'Reset Password'
+    user, payload_hash = User.check_password_reset_link(payload)
 
     if request.method == 'GET':
-        flash("Not Implemented yet.")
-        return render_template('user_action.html', form=form,
-                               page_title=page_title)
+        if not user:
+            flash("Token incorrect or has expired.  Please try again.")
+            return redirect(url_for('.forgot_password'))
+        elif user and payload_hash != user.password[:10]:
+            flash("Token has been previously used.  Please try again.")
+            return redirect(url_for('.forgot_password'))
+        else:
+            return render_template('user_action.html',
+                                   form=form,
+                                   page_title=page_title)
+
     elif request.method == 'POST':
-        return render_template('user_action.html', form=form,
-                               page_title=page_title)
+        if form.validate():
+            user.password = form.password.data
+            user.save()
+            # email "Your password was just reset."
+            flash("Password has been reset, please login.")
+            return redirect(url_for('.login'))
+        else:
+            return render_template('user_action.html',
+                                   form=form,
+                                   page_title=page_title)
 
 
 @user.route('/profile/<user_id>')

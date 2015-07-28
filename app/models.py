@@ -340,9 +340,10 @@ class User(db.Model):
             old_hash = unhashed_payload[
                 len(unhashed_payload)-10:len(unhashed_payload)]
             user_id = unhashed_payload[:-10]
+            user = User.get(email=user_id)
         except SignatureExpired or BadSignature:
             return False
-        return (user_id, old_hash)
+        return (user, old_hash)
 
     @staticmethod
     def create(new_user):
@@ -352,7 +353,6 @@ class User(db.Model):
         User.email_confirmation(new_user, payload)
 
         # TODO: make this work
-        new_user.activate()
         new_user.save()
 
         new_user = User.get(email=new_user.email)
@@ -385,7 +385,7 @@ class User(db.Model):
         recipients = [user.email]
         text_body = render_template("emails/password_reset.txt",
                                     user=user, payload=payload)
-        html_body = render_template("emails/password_rest.html",
+        html_body = render_template("emails/password_reset.html",
                                     user=user, payload=payload)
 
         send_email(subject, recipients, text_body, html_body)

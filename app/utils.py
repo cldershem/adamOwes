@@ -13,8 +13,7 @@ Misc utilities for use throughout the application.
 from itsdangerous import (URLSafeSerializer, URLSafeTimedSerializer)
 from functools import wraps
 from flask.ext.login import current_user
-from flask import (flash, redirect, url_for, current_app,
-                   copy_current_request_context)
+from flask import (flash, redirect, url_for, current_app)
 from threading import Thread
 from flask.ext.mail import Message
 # from app import mail

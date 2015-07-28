@@ -30,7 +30,7 @@ class LoginForm(Form):
         if not Form.validate(self):
             return False
         else:
-            user = User.get_by_id(email=self.email.data.lower().strip())
+            user = User.get(email=self.email.data.lower().strip())
 
             if user and user.check_password(self.password.data):
                 return True
@@ -59,13 +59,14 @@ class RegisterUserForm(Form):
         """
         if not Form.validate(self):
             return False
-        try:
-            user = User.get_by_id(email=self.email.data.lower().strip())
+        else:
+            user = User.get(email=self.email.data.lower().strip())
+
             if user:
                 self.email.errors.append("That email already exists.")
                 return False
-        except Exception:
-            return True
+            else:
+                return True
 
 
 class ForgotPasswordForm(Form):
@@ -75,9 +76,9 @@ class ForgotPasswordForm(Form):
 
 
 class ResetPasswordForm(Form):
-    password = StringField('First Name', validators=[
+    password = PasswordField('Password', validators=[
         InputRequired(message="Please enter a password."),
         EqualTo('confirm', message="Passwords must match.")])
-    confirm = StringField('First Name', validators=[
+    confirm = PasswordField('Confirm Pasword', validators=[
         InputRequired(message="Please enter a password again.")])
-    submit = SubmitField('Register')
+    submit = SubmitField('Reset Password')
