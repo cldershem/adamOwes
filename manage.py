@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 manage.py
@@ -55,7 +55,7 @@ def populate_db():
     """
     Populates db with random dummy data.
     """
-    from app.models import (Debt)
+    from app.models import (Debt, User)
     from app import db
     import random
     from datetime import datetime
@@ -69,10 +69,12 @@ def populate_db():
     db.create_all()
 
     list_o_types = ['money', 'item', 'storage', 'promise']
-    list_o_people = ['Bob', 'Susan', 'Tom', 'Your Mom', 'Sally']
     list_o_descriptions = [
         'Something', 'Nothing', 'Noneya', 'Handy', 'Ice Cream']
     list_o_compounds = ['daily', 'weekly', 'monthly', 'biannually', 'annually']
+    list_o_firstnames = ['Bob', 'Tom', 'Sally', 'Susan', 'Your Mom']
+    list_o_lastnames = ['Miler', 'Yoder', 'Bontreger', 'Clinton']
+    email_suffix = '@example.com'
 
     def get_random_date():
         year = random.randint(1980, 2015)
@@ -85,7 +87,7 @@ def populate_db():
             debt = Debt(
                 debt_type=random.choice(list_o_types),
                 description=random.choice(list_o_descriptions),
-                to_whom=random.choice(list_o_people),
+                to_whom=random.choice(list_o_firstnames),
                 amount=float(random.randrange(10000, 99999) / 100),
                 fees=float(random.randrange(10000, 99999) / 100),
                 interest=float(random.randrange(1000, 9999) / 100),
@@ -96,6 +98,30 @@ def populate_db():
             db.session.commit()
             print("Created debt_id={}".format(debt.debt_type))
 
+    def populate_user():
+        for i in range(10):
+            firstname = random.choice(list_o_firstnames)
+            lastname = random.choice(list_o_lastnames)
+            email = "{}{}{}".format(firstname, lastname, email_suffix)
+
+            user = User(
+                firstname=firstname,
+                lastname=lastname,
+                email=email,
+                password='hunter2',
+                )
+            db.session.add(user)
+            db.session.commit()
+            activate_user(user)
+            print("Created user_id={}".format(user.user_id))
+
+    def activate_user(user):
+        user.activate()
+        db.session.add(user)
+        db.session.commit()
+        print("Activated user_id={}".format(user.user_id))
+
+    populate_user()
     populate_debt()
 
 

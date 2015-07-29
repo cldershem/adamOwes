@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 app.users.forms
@@ -27,7 +27,7 @@ class LoginForm(Form):
     submit = SubmitField("Login")
 
     def validate(self):
-        if not Form.validate(self):
+        if not super().validate():
             return False
         else:
             user = User.get(email=self.email.data.lower().strip())
@@ -57,7 +57,7 @@ class RegisterUserForm(Form):
     def validate(self):
         """
         """
-        if not Form.validate(self):
+        if not super().validate():
             return False
         else:
             user = User.get(email=self.email.data.lower().strip())

@@ -10,12 +10,21 @@ cd adamOwes
 setup virtualenv
 ```sh
 sudo apt-get install virtualenv virtualenvwrapper
+
+# Py2.7
 mkvirtualenv adamOwes
+
+# Py3
+mkvirtualenv --python=/usr/bin/python3 adamOwes-Flask3
 ```
 
 install dependencies
 ```sh
+# Py2.7
 pip install -r requirements.txt
+
+# Py3
+pip3 install -r requirements3.txt
 sudo apt-get install rabbitmq-server
 ```
 

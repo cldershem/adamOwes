@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 app.models
@@ -13,10 +13,10 @@ DB models for application
 from app import db, bcrypt
 import datetime
 from dateutil.relativedelta import relativedelta
-from utils import (format_datetime, serializer, timed_serializer)
+from .utils import (format_datetime, serializer, timed_serializer)
 from itsdangerous import (BadSignature, SignatureExpired)
 from flask import render_template
-from emails import send_email
+from .emails import send_email
 
 
 class Debt(db.Model):
@@ -37,15 +37,7 @@ class Debt(db.Model):
     date_modified = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
     compound_frequency = db.Column(db.String(20))
     is_active = db.Column(db.Boolean())
-
-    compound_frequency_to_int = {
-        'daily': 365,
-        'weekly': 52,
-        'monthly': 12,
-        'quarterly': 4,
-        'biannually': 2,
-        'annually': 1,
-        }
+    # owed_to = db.relationship('User')
 
     def __init__(self, debt_type, description, amount, to_whom, debt_date,
                  photo=None, interest=0, fees=0, title=None,
@@ -70,13 +62,22 @@ class Debt(db.Model):
 
     @property
     def amount_with_interest(self):
+        compound_frequency_to_int = {
+            'daily': 365,
+            'weekly': 52,
+            'monthly': 12,
+            'quarterly': 4,
+            'biannually': 2,
+            'annually': 1,
+            }
+
         principal = self.amount
         if self.fees:
             principal += self.get_fees()
 
         rate = self.interest / 100
         age = self.get_debt_age() + 1
-        compound = Debt.compound_frequency_to_int[self.compound_frequency]
+        compound = compound_frequency_to_int[self.compound_frequency]
 
         total = 0
         for year in range(0, age):
@@ -261,8 +262,11 @@ class User(db.Model):
     def activate(self):
         self.confirmed = datetime.datetime.utcnow()
         # self.roles.can_login = True
+        self._is_active = True
 
     def is_active(self):
+        # if not self.confirmed and self._is_active:
+        #     return False
         return True
 
     def get_id(self):

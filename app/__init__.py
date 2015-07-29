@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 app.py
@@ -13,7 +13,7 @@ This is an application.
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from config import config
-from utils import format_datetime
+from .utils import format_datetime
 from flask.ext.login import LoginManager
 from flask.ext.bcrypt import Bcrypt
 from flask.ext.mail import Mail
@@ -43,10 +43,10 @@ def create_app(config_name):
     with app.app_context():
         db.create_all()
 
-    from main import main as main_module
-    from api import api as api_module
-    from user import user as user_module
-    from debt import debt as debt_module
+    from .main import main as main_module
+    from .api import api as api_module
+    from .user import user as user_module
+    from .debt import debt as debt_module
 
     app.register_blueprint(main_module)
     app.register_blueprint(api_module)
