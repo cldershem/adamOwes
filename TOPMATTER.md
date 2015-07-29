@@ -9,4 +9,3 @@ If you'd like to contribute:
 - [Fork the repository](https://help.github.com/articles/fork-a-repo/)
 - [Submit a pull request](https://help.github.com/articles/using-pull-requests/)
 - Update the [issue](https://github.com/cldershem/adamOwes/issues)
-

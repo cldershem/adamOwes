@@ -47,11 +47,16 @@ def login():
         if form.validate():
             user = User.get(email=form.email.data.lower().strip())
             if user.confirmed and user.is_active:
-                login_user(user)
-                user.last_seen = datetime.datetime.utcnow()
-                user.save()
-                return redirect(request.args.get('next') or
-                                url_for('.profile', user_id=user.get_id()))
+                if login_user(user):
+                    user.last_seen = datetime.datetime.utcnow()
+                    user.save()
+                    return redirect(request.args.get('next') or
+                                    url_for('.profile', user_id=user.get_id()))
+                else:
+                    flash("Your account is marked inactive.")
+                    return render_template('user_action.html', form=form,
+                                           page_title=page_title)
+
             else:
                 flash("Please confirm your email.")
                 return render_template('user_action.html', form=form,

@@ -4,7 +4,7 @@
 app.models
 ~~~~~~~~~~~~~~~~~
 
-DB models for application
+DB models for application.
 
 :copyright: (c) 2015 by Cameron Dershem.
 :license: see TOPMATTER
@@ -265,8 +265,8 @@ class User(db.Model):
         self._is_active = True
 
     def is_active(self):
-        # if not self.confirmed and self._is_active:
-        #     return False
+        if not self.confirmed or not self._is_active:
+            return False
         return True
 
     def get_id(self):

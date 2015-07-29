@@ -4,7 +4,7 @@
 app.main.forms
 ~~~~~~~~~~~~~~~~~
 
-Forms needed throughout app.
+Forms needed for `main` blueprint.
 
 :copyright: (c) 2015 by Cameron Dershem.
 :license: see TOPMATTER
