@@ -115,6 +115,17 @@ def populate_db():
             activate_user(user)
             print("Created user_id={}".format(user.user_id))
 
+        tester = User(
+            firstname='Tester',
+            lastname='Tester',
+            email='tester@example.com',
+            password='tester',
+            )
+        db.session.add(tester)
+        db.session.commit()
+        activate_user(tester)
+        print("Created tester")
+
     def activate_user(user):
         user.activate()
         db.session.add(user)

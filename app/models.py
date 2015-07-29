@@ -19,6 +19,16 @@ from flask import render_template
 from .emails import send_email
 
 
+user_debt = db.Table('user_debt', db.Model.metadata,
+                     db.Column('user_id',
+                               db.Integer,
+                               db.ForeignKey('user.user_id')),
+                     db.Column('debt_id',
+                               db.Integer,
+                               db.ForeignKey('debt.debt_id')),
+                     )
+
+
 class Debt(db.Model):
     """
     Defines db model for `Debt`.
@@ -37,7 +47,8 @@ class Debt(db.Model):
     date_modified = db.Column(db.DateTime, onupdate=datetime.datetime.utcnow)
     compound_frequency = db.Column(db.String(20))
     is_active = db.Column(db.Boolean())
-    # owed_to = db.relationship('User')
+    created_by = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    owed_to = db.relationship('User', secondary=user_debt)
 
     def __init__(self, debt_type, description, amount, to_whom, debt_date,
                  photo=None, interest=0, fees=0, title=None,

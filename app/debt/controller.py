@@ -18,6 +18,7 @@ from app.debt.forms import AddNewDebtForm
 from . import debt
 from werkzeug import secure_filename
 from flask.ext.login import (login_required)
+from flask.ext.login import current_user
 
 
 @debt.route('/')
@@ -46,6 +47,9 @@ def add_new():
                 debt_date=form.debt_date.data,
                 compound_frequency=form.compound_frequency.data,
                 )
+            new_debt.created_by = current_user.user_id
+            new_debt.owed_to = [current_user]
+
             if form.interest.data:
                 new_debt.interest = form.interest.data
             if form.fees.data:
